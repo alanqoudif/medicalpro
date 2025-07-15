@@ -50,10 +50,11 @@ const SideBar = ({
                   name={"Doctor"}
                   handleClick={() => setOpenComponent("Doctor")}
                 />
-                <Link
+                {/* HIDDEN - Add Medicine Feature */}
+                {/* <Link
                   name={"Add Medicine"}
                   handleClick={() => setOpenComponent("Add Medicine")}
-                />
+                /> */}
                 <Link
                   name={"All Appoinments"}
                   handleClick={() => setOpenComponent("All Appoinments")}
@@ -117,12 +118,13 @@ const SideBar = ({
                   Notifications
                 </a>
               </li>
-              {userType == "Patient" && (
+              {/* HIDDEN - Order Feature */}
+              {/* {userType == "Patient" && (
                 <Link
                   name={"Order"}
                   handleClick={() => setOpenComponent("Order")}
                 />
-              )}
+              )} */}
               {userType == "Patient" && (
                 <Link
                   name={"Prescription"}
@@ -143,7 +145,8 @@ const SideBar = ({
               )}
             </ul>
           </li>
-          <li>
+          {/* HIDDEN - Shop Feature */}
+          {/* <li>
             <a
               className="ai-icon"
               aria-expanded="false"
@@ -154,8 +157,9 @@ const SideBar = ({
               </i>
               <span className="nav-text">Shop</span>
             </a>
-          </li>
-          <li>
+          </li> */}
+          {/* HIDDEN - Chat Feature */}
+          {/* <li>
             <a
               className="ai-icon"
               aria-expanded="false"
@@ -166,8 +170,9 @@ const SideBar = ({
               </i>
               <span className="nav-text">Chat</span>
             </a>
-          </li>
-          <li>
+          </li> */}
+          {/* HIDDEN - AI Chatbot Feature */}
+          {/* <li>
             <a
               className="ai-icon"
               aria-expanded="false"
@@ -178,7 +183,7 @@ const SideBar = ({
               </i>
               <span className="nav-text">Ask AI</span>
             </a>
-          </li>
+          </li> */}
         </ul>
         <div className="plus-box">
           <p className="fs-16 font-w500 mb-1">Check your job schedule</p>

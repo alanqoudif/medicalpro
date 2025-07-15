@@ -215,7 +215,8 @@ const index = () => {
               setOpenComponent={setOpenComponent}
               setDoctorDetails={setDoctorDetails}
             />
-          ) : openComponent == "Add Medicine" ? (
+          ) : // HIDDEN - Add Medicine Feature
+          false ? ( // openComponent == "Add Medicine" ? (
             <AddMedicine
               setOpenComponent={setOpenComponent}
               setMedicineDetails={setMedicineDetails}
@@ -232,13 +233,15 @@ const index = () => {
               setOpenComponent={setOpenComponent}
               setDoctorDetails={setDoctorDetails}
             />
-          ) : openComponent == "Shop" ? (
+          ) : // HIDDEN - Shop Feature
+          false ? ( // openComponent == "Shop" ? (
             <Shop
               setOpenComponent={setOpenComponent}
               setMedicineDetails={setMedicineDetails}
               currency={currency}
             />
-          ) : openComponent == "Medicine" ? (
+          ) : // HIDDEN - Medicine Feature
+          false ? ( // openComponent == "Medicine" ? (
             <Medicine
               setOpenComponent={setOpenComponent}
               setMedicineDetails={setMedicineDetails}
@@ -247,7 +250,8 @@ const index = () => {
               userType={userType}
               currency={currency}
             />
-          ) : openComponent == "Order" ? (
+          ) : // HIDDEN - Order Feature
+          false ? ( // openComponent == "Order" ? (
             <Order
               setOpenComponent={setOpenComponent}
               setMedicineDetails={setMedicineDetails}
@@ -291,12 +295,14 @@ const index = () => {
             />
           ) : openComponent == "StaffProfile" ? (
             <StaffProfile setOpenComponent={setOpenComponent} />
-          ) : openComponent == "Chat" ? (
+          ) : // HIDDEN - Chat Feature
+          false ? ( // openComponent == "Chat" ? (
             <Chat
               setOpenComponent={setOpenComponent}
               SEND_MESSAGE={SEND_MESSAGE}
             />
-          ) : openComponent == "Ask AI" ? (
+          ) : // HIDDEN - AI Chatbot Feature
+          false ? ( // openComponent == "Ask AI" ? (
             <AI setOpenComponent={setOpenComponent} />
           ) : openComponent == "MedicialHistory" ? (
             <MedicialHistory setOpenComponent={setOpenComponent} />
