@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Table from "./Table";
 import Booking from "./Booking";
+import DoctorNotes from "../DoctorProfile/DoctorNotes";
 
 import {
   GET_PATIENT_APPOINTMENT_HISTORYS,
@@ -16,6 +17,9 @@ import { useStateContext } from "../../../Context/index";
 const Appointment = ({ setOpenComponent, setDoctorDetails }) => {
   const { CHECKI_IF_CONNECTED_LOAD, address, setAddress, SEND_MESSAGE } =
     useStateContext();
+  
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [doctorNotes, setDoctorNotes] = useState("");
 
   const tableHead = [
     {
@@ -153,6 +157,10 @@ const Appointment = ({ setOpenComponent, setDoctorDetails }) => {
                     name={"appoinment"}
                     setOpenComponent={setOpenComponent}
                     setDoctorDetails={setDoctorDetails}
+                    onShowNotes={(notes) => {
+                      setDoctorNotes(notes);
+                      setShowNotesModal(true);
+                    }}
                   />
                 </div>
               </div>
@@ -160,6 +168,16 @@ const Appointment = ({ setOpenComponent, setDoctorDetails }) => {
           </div>
         </div>
       </div>
+      {showNotesModal && (
+        <DoctorNotes
+          setDoctorNotes={() => {}}
+          setShowNotesModal={setShowNotesModal}
+          doctorNotes={{}}
+          existingNotes={doctorNotes}
+          isViewMode={true}
+          handleClick={() => {}}
+        />
+      )}
       <Booking registerDoctors={registerDoctors} />
     </>
   );

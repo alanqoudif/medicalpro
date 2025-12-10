@@ -7,6 +7,7 @@ import AppoinmentList from "./AppoinmentList";
 import Card from "./Card";
 import Update from "./Update";
 import UpdateStatus from "./UpdateStatus";
+import DoctorNotes from "./DoctorNotes";
 import {
   DoctorDetails2,
   DoctorDetails1,
@@ -29,16 +30,38 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
     address,
     BOOK_APPOINTMENT,
     UPDATE_PATIENT_MEDICAL_HISTORY,
+    ADD_DOCTOR_NOTES,
   } = useStateContext();
 
   const [doctorAppoinments, setDoctorAppoinments] = useState();
   const [updateCondition, setUpdateCondition] = useState(false);
   const [doctorInfo, setDoctorInfo] = useState();
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [notesData, setNotesData] = useState({
+    appointmentId: "",
+    existingNotes: "",
+    patientName: "",
+  });
 
   const [conditionUpdate, setConditionUpdate] = useState({
     message: "",
     patientID: "",
   });
+
+  const [doctorNotes, setDoctorNotes] = useState({
+    appointmentId: "",
+    notes: "",
+  });
+
+  // Reset doctor notes when modal opens
+  useEffect(() => {
+    if (showNotesModal && notesData.existingNotes) {
+      setDoctorNotes({
+        appointmentId: notesData.appointmentId,
+        notes: notesData.existingNotes,
+      });
+    }
+  }, [showNotesModal, notesData]);
 
   const notifySuccess = (msg) => toast.success(msg, { duration: 2000 });
 
@@ -100,6 +123,8 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
                         setUpdateCondition={setUpdateCondition}
                         setConditionUpdate={setConditionUpdate}
                         conditionUpdate={conditionUpdate}
+                        setShowNotesModal={setShowNotesModal}
+                        setNotesData={setNotesData}
                       />
                     ))}
                   </ul>

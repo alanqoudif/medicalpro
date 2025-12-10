@@ -347,8 +347,22 @@ export const GET_DOCTOR_APPOINTMENTS_HISTORYS = async (_doctorID) => {
         isOpen,
       }) => {
         const patient = await GET_PATIENT_DETAILS(patientId);
+        // Get doctor notes if available
+        let doctorNotes = "";
+        try {
+          doctorNotes = await contract.appointmentDoctorNotes(id.toNumber());
+          if (doctorNotes && doctorNotes.length > 0) {
+            doctorNotes = doctorNotes;
+          } else {
+            doctorNotes = "";
+          }
+        } catch (error) {
+          console.log("Error fetching doctor notes:", error);
+          doctorNotes = "";
+        }
         return {
           appoinmnetID: id.toNumber(),
+          doctorNotes: doctorNotes,
           patientId: patientId.toNumber(),
           doctorId: doctorId.toNumber(),
           date: CONVERT_TIMESTAMP_TO_READABLE(date.toNumber()),
@@ -595,6 +609,19 @@ export const GET_PATIENT_APPOINTMENT_HISTORYS = async (_patientID) => {
       }) => {
         console.log(id.toNumber());
         const doctor = await GET_DOCTOR_DETAILS(doctorId.toNumber());
+        // Get doctor notes if available
+        let doctorNotes = "";
+        try {
+          doctorNotes = await contract.appointmentDoctorNotes(id.toNumber());
+          if (doctorNotes && doctorNotes.length > 0) {
+            doctorNotes = doctorNotes;
+          } else {
+            doctorNotes = "";
+          }
+        } catch (error) {
+          console.log("Error fetching doctor notes:", error);
+          doctorNotes = "";
+        }
         return {
           appointmentID: id.toNumber(),
           patientId: patientId.toNumber(),
@@ -605,6 +632,7 @@ export const GET_PATIENT_APPOINTMENT_HISTORYS = async (_patientID) => {
           appointmentDate: appointmentDate,
           condition: condition,
           message: message,
+          doctorNotes: doctorNotes,
           doctor,
           isOpen,
         };
@@ -683,6 +711,18 @@ export const CHECK_PATIENT_REGISTERATION = async (_patientAddress) => {
   const patientDetail = await GET_PATIENT_DETAILS(patient.toNumber());
 
   return patientDetail;
+};
+
+//GET DOCTOR NOTES FOR APPOINTMENT
+export const GET_DOCTOR_NOTES = async (_appointmentId) => {
+  const contract = await HEALTH_CARE_CONTARCT();
+  try {
+    const notes = await contract.GET_DOCTOR_NOTES(Number(_appointmentId));
+    return notes;
+  } catch (error) {
+    console.log("Error getting doctor notes:", error);
+    return "";
+  }
 };
 
 //GET_ALL_PATIENT_ORDERS

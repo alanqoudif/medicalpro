@@ -305,6 +305,43 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  //ADD DOCTOR NOTES FOR APPOINTMENT
+  const ADD_DOCTOR_NOTES = async (notesData) => {
+    try {
+      const { appointmentId, notes } = notesData;
+      if (!appointmentId || !notes) return notifyError("Data missing");
+
+      setLoader(true);
+      notifySuccess("Adding notes...");
+
+      const address = await CHECKI_IF_CONNECTED_LOAD();
+      if (address) {
+        const contract = await HEALTH_CARE_CONTARCT();
+
+        const transaction = await contract.ADD_DOCTOR_NOTES(
+          Number(appointmentId),
+          notes,
+          {
+            gasLimit: ethers.utils.hexlify(8000000),
+          }
+        );
+
+        await transaction.wait();
+
+        if (transaction.hash) {
+          setLoader(false);
+          notifySuccess("Notes added successfully");
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      setLoader(false);
+      const errorMsg = PARSED_ERROR_MSG(error);
+      notifyError(errorMsg);
+      console.log(error);
+    }
+  };
+
   //------APTIENT-------
 
   ///ADD PATIENT
@@ -665,6 +702,7 @@ export const StateContextProvider = ({ children }) => {
         UPDATE_PATIENT_MEDICAL_HISTORY,
         BOOK_APPOINTMENT,
         COMPLETE_APPOINTMENT,
+        ADD_DOCTOR_NOTES,
         SEND_MESSAGE,
         //VERIBALES
         notifySuccess,

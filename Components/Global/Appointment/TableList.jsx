@@ -6,6 +6,7 @@ const TableList = ({
   name,
   setDoctorDetails,
   setOpenComponent,
+  onShowNotes,
 }) => {
   return (
     <tr key={item?.id}>
@@ -47,6 +48,15 @@ const TableList = ({
         >
           View Doctor
         </a>
+        {item?.doctorNotes && (
+          <a
+            onClick={() => onShowNotes && onShowNotes(item?.doctorNotes)}
+            className="btn btn-info light btn-rounded mb-2 me-2"
+            style={{ display: "block", marginTop: "5px" }}
+          >
+            View Doctor Notes
+          </a>
+        )}
       </td>
       <td>
         <a

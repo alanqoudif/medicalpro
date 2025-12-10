@@ -10,6 +10,7 @@ const Table = ({
   name,
   setOpenComponent,
   setDoctorDetails,
+  onShowNotes,
 }) => {
   return (
     <table
@@ -25,6 +26,7 @@ const Table = ({
             name={name}
             setOpenComponent={setOpenComponent}
             setDoctorDetails={setDoctorDetails}
+            onShowNotes={onShowNotes}
           />
         ))}
       </tbody>

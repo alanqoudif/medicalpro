@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 //INTERNAL IMPORT
 import { DoctorDetails1 } from "../../SVG/index";
 
-import { GET_PATIENT_DETAILS } from "../../../Context/constants";
+import { GET_PATIENT_DETAILS, GET_DOCTOR_NOTES } from "../../../Context/constants";
 import { useStateContext } from "../../../Context/index";
 
 const AppoinmentList = ({
@@ -12,6 +12,8 @@ const AppoinmentList = ({
   setUpdateCondition,
   conditionUpdate,
   setConditionUpdate,
+  setShowNotesModal,
+  setNotesData,
 }) => {
   const { COMPLETE_APPOINTMENT } = useStateContext();
   const [patient, setPatient] = useState();
@@ -60,6 +62,33 @@ const AppoinmentList = ({
           >
             <DoctorDetails1 />
             Update
+          </a>
+          <a
+            onClick={async () => {
+              try {
+                const existingNotes = await GET_DOCTOR_NOTES(item?.appoinmnetID);
+                setNotesData({
+                  appointmentId: item?.appoinmnetID,
+                  existingNotes: existingNotes || item?.doctorNotes || "",
+                  patientName: `${patient?.title} ${patient?.firstName} ${patient?.lastName}`,
+                });
+                setShowNotesModal(true);
+              } catch (error) {
+                console.log("Error loading notes:", error);
+                setNotesData({
+                  appointmentId: item?.appoinmnetID,
+                  existingNotes: item?.doctorNotes || "",
+                  patientName: `${patient?.title} ${patient?.firstName} ${patient?.lastName}`,
+                });
+                setShowNotesModal(true);
+              }
+            }}
+            className="btn btn-info light btn-rounded mb-2 me-2"
+          >
+            <DoctorDetails1 />
+            {item?.doctorNotes && item?.doctorNotes.length > 0
+              ? "View/Edit Notes"
+              : "Add Notes"}
           </a>
           <a
             onClick={() => COMPLETE_APPOINTMENT(item?.appoinmnetID)}

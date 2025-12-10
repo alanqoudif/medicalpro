@@ -105,6 +105,7 @@ contract Healthcare {
     mapping(uint => Appointment) public appointments;
     mapping(address => bool) public registeredDoctors;
     mapping(address => bool) public registeredPatients;
+    mapping(uint => string) public appointmentDoctorNotes; // Doctor notes for each appointment
 
     uint public medicineCount;
     uint public doctorCount;
@@ -312,6 +313,29 @@ contract Healthcare {
         ADD_NOTIFICATION(patients[_patientId].accountAddress, "Doctor prescribed you medicine", "Doctor");
 
         ADD_NOTIFICATION(admin, "Doctor prescribed medicine successfully", "Doctor");
+    }
+
+    // ADD DOCTOR NOTES FOR APPOINTMENT
+    function ADD_DOCTOR_NOTES(uint _appointmentId, string memory _notes) public onlyDoctor {
+        require(_appointmentId <= appointmentCount, "Appointment does not exist");
+        require(appointments[_appointmentId].doctorId == GET_DOCTOR_ID(msg.sender), "Only the assigned doctor can add notes");
+        
+        appointmentDoctorNotes[_appointmentId] = _notes;
+
+        ADD_NOTIFICATION(msg.sender, "You have successfully added notes for the appointment", "Doctor");
+        ADD_NOTIFICATION(patients[appointments[_appointmentId].patientId].accountAddress, "Your doctor has added notes to your appointment", "Doctor");
+    }
+
+    // GET DOCTOR NOTES FOR APPOINTMENT
+    function GET_DOCTOR_NOTES(uint _appointmentId) public view returns (string memory) {
+        require(_appointmentId <= appointmentCount, "Appointment does not exist");
+        require(
+            appointments[_appointmentId].patientId == GET_PATIENT_ID(msg.sender) || 
+            appointments[_appointmentId].doctorId == GET_DOCTOR_ID(msg.sender) || 
+            msg.sender == admin,
+            "Only the patient, assigned doctor, or admin can view the notes"
+        );
+        return appointmentDoctorNotes[_appointmentId];
     }
 
     //--------------END OF DOCTOR------------------
