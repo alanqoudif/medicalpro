@@ -11,24 +11,17 @@ import {
   Patient,
   Doctor,
   Appointment,
-  Shop,
-  Medicine,
-  Order,
   Invoice,
   Profile,
   DoctorProfile,
   DoctorDetails,
   StaffProfile,
-  AddMedicine,
   AllAppoinments,
-  Chat,
-  AI,
   PatientProfile,
   User,
   AddDoctor,
   AddPatient,
   Auth,
-  Prescription,
   DoctorAppointment,
   MedicialHistory,
   Notifications,
@@ -58,7 +51,6 @@ const index = () => {
     address,
     setAddress,
     SEND_MESSAGE,
-    BUY_MEDICINE,
     reCall,
     loader,
     setOpenComponent,
@@ -79,7 +71,6 @@ const index = () => {
   const [authComponent, setAuthComponent] = useState(true);
   const [doctorDetails, setDoctorDetails] = useState();
   const [patientDetails, setPatientDetails] = useState();
-  const [medicineDetails, setMedicineDetails] = useState();
   const [invoic, setInvoic] = useState();
   const [notifications, setNotifications] = useState();
   const [notificationCount, setNotificationCount] = useState();
@@ -215,13 +206,6 @@ const index = () => {
               setOpenComponent={setOpenComponent}
               setDoctorDetails={setDoctorDetails}
             />
-          ) : // HIDDEN - Add Medicine Feature
-          false ? ( // openComponent == "Add Medicine" ? (
-            <AddMedicine
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              registerDoctors={registerDoctors}
-            />
           ) : openComponent == "All Appoinments" ? (
             <AllAppoinments
               setDoctorDetails={setDoctorDetails}
@@ -232,31 +216,6 @@ const index = () => {
             <Appointment
               setOpenComponent={setOpenComponent}
               setDoctorDetails={setDoctorDetails}
-            />
-          ) : // HIDDEN - Shop Feature
-          false ? ( // openComponent == "Shop" ? (
-            <Shop
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              currency={currency}
-            />
-          ) : // HIDDEN - Medicine Feature
-          false ? ( // openComponent == "Medicine" ? (
-            <Medicine
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              medicineDetails={medicineDetails}
-              BUY_MEDICINE={BUY_MEDICINE}
-              userType={userType}
-              currency={currency}
-            />
-          ) : // HIDDEN - Order Feature
-          false ? ( // openComponent == "Order" ? (
-            <Order
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              setInvoic={setInvoic}
-              currency={currency}
             />
           ) : openComponent == "Invoice" ? (
             <Invoice
@@ -295,15 +254,6 @@ const index = () => {
             />
           ) : openComponent == "StaffProfile" ? (
             <StaffProfile setOpenComponent={setOpenComponent} />
-          ) : // HIDDEN - Chat Feature
-          false ? ( // openComponent == "Chat" ? (
-            <Chat
-              setOpenComponent={setOpenComponent}
-              SEND_MESSAGE={SEND_MESSAGE}
-            />
-          ) : // HIDDEN - AI Chatbot Feature
-          false ? ( // openComponent == "Ask AI" ? (
-            <AI setOpenComponent={setOpenComponent} />
           ) : openComponent == "MedicialHistory" ? (
             <MedicialHistory setOpenComponent={setOpenComponent} />
           ) : openComponent == "User" ? (
@@ -314,13 +264,6 @@ const index = () => {
             <DoctorAppointment
               setOpenComponent={setOpenComponent}
               setPatientDetails={setPatientDetails}
-            />
-          ) : openComponent == "Prescription" ? (
-            <Prescription
-              setOpenComponent={setOpenComponent}
-              setDoctorDetails={setDoctorDetails}
-              setPatientDetails={setPatientDetails}
-              setMedicineDetails={setMedicineDetails}
             />
           ) : (
             ""

@@ -118,19 +118,6 @@ const SideBar = ({
                   Notifications
                 </a>
               </li>
-              {/* HIDDEN - Order Feature */}
-              {/* {userType == "Patient" && (
-                <Link
-                  name={"Order"}
-                  handleClick={() => setOpenComponent("Order")}
-                />
-              )} */}
-              {userType == "Patient" && (
-                <Link
-                  name={"Prescription"}
-                  handleClick={() => setOpenComponent("Prescription")}
-                />
-              )}
               {userType == "Patient" && (
                 <Link
                   name={"Medicial History"}

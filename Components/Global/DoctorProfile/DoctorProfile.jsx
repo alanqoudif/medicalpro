@@ -18,7 +18,6 @@ import { FaRegCopy } from "../../ReactICON/index";
 import {
   SHORTEN_ADDRESS,
   GET_DOCTOR_APPOINTMENTS_HISTORYS,
-  GET_ALL_REGISTERED_MEDICINES,
   CHECK_DOCTOR_REGISTERATION,
 } from "../../../Context/constants";
 
@@ -29,20 +28,13 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
     CHECKI_IF_CONNECTED_LOAD,
     address,
     BOOK_APPOINTMENT,
-    PRESCRIBE_MEDICINE,
     UPDATE_PATIENT_MEDICAL_HISTORY,
   } = useStateContext();
 
   const [doctorAppoinments, setDoctorAppoinments] = useState();
-  const [prescribeMedicine, setPrescribeMedicine] = useState(false);
   const [updateCondition, setUpdateCondition] = useState(false);
-  const [registerMedicine, setRegisterMedicine] = useState();
   const [doctorInfo, setDoctorInfo] = useState();
 
-  const [prescribeDoctor, setPrescribeDoctor] = useState({
-    medicineID: "",
-    patientID: "",
-  });
   const [conditionUpdate, setConditionUpdate] = useState({
     message: "",
     patientID: "",
@@ -71,31 +63,10 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
     fetchData();
   }, [user?.doctorID]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        GET_ALL_REGISTERED_MEDICINES().then((medicine) => {
-          setRegisterMedicine(medicine);
-        });
-      }
-    };
-
-    fetchData();
-  }, [address]);
 
   return (
     <div className="container-fluid">
       <Header setOpenComponent={setOpenComponent} />
-      {prescribeMedicine && (
-        <Update
-          prescribeDoctor={prescribeDoctor}
-          setPrescribeDoctor={setPrescribeDoctor}
-          setPrescribeMedicine={setPrescribeMedicine}
-          registerMedicine={registerMedicine}
-          handleClick={() => PRESCRIBE_MEDICINE(prescribeDoctor)}
-        />
-      )}
       {updateCondition && (
         <UpdateStatus
           setUpdateCondition={setUpdateCondition}
@@ -126,9 +97,6 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
                       <AppoinmentList
                         item={item}
                         index={index}
-                        setPrescribeMedicine={setPrescribeMedicine}
-                        prescribeDoctor={prescribeDoctor}
-                        setPrescribeDoctor={setPrescribeDoctor}
                         setUpdateCondition={setUpdateCondition}
                         setConditionUpdate={setConditionUpdate}
                         conditionUpdate={conditionUpdate}

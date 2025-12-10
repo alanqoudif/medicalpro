@@ -1,15 +1,8 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import OpenAI from "openai";
 import axios from "axios";
 
 import Healthcare from "./Healthcare.json";
-
-//OPEN AI
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPEN_AI_KEY,
-  dangerouslyAllowBrowser: true,
-});
 
 const HEALTH_CARE_ABI = Healthcare.abi;
 const HEALTH_CARE_ADDRESS = process.env.NEXT_PUBLIC_HEALTH_CARE;
@@ -480,122 +473,6 @@ export const CHECK_DOCTOR_REGISTERATION = async (_doctorAddress) => {
 
 //----END OF DOCTORS------
 
-//----MEDICINE------------
-
-//GET REGISTER MEDICINE
-export const GET_ALL_REGISTERED_MEDICINES = async () => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const medicines = await contract.GET_ALL_REGISTERED_MEDICINES();
-
-  const _medicinesArray = await Promise.all(
-    medicines.map(
-      async ({
-        id,
-        IPFS_URL,
-        price,
-        quantity,
-        discount,
-        currentLocation,
-        active,
-      }) => {
-        const {
-          data: {
-            verifyingDoctor,
-            name,
-            brand,
-            manufacturer,
-            manufacturDate,
-            expiryDate,
-            code,
-            companyEmail,
-            manufactureAddress,
-            mobile,
-            email,
-            image,
-            description,
-          },
-        } = await axios.get(IPFS_URL, {});
-
-        return {
-          verifyingDoctor,
-          name,
-          brand,
-          manufacturer,
-          manufacturDate,
-          expiryDate,
-          code,
-          companyEmail,
-          discount: discount.toNumber(),
-          manufactureAddress,
-          price: price.toNumber(),
-          quantity: quantity.toNumber(),
-          currentLocation,
-          mobile,
-          email,
-          image,
-          description,
-          medicineID: id.toNumber(),
-          IPFS_URL,
-          active,
-        };
-      }
-    )
-  );
-  return _medicinesArray;
-};
-
-//GET MEDICINE DETAILS
-export const GET_MEDICINE_DETAILS = async (_medicineId) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const medic = await contract.GET_MEDICINE_DETAILS(Number(_medicineId));
-
-  const {
-    data: {
-      verifyingDoctor,
-      name,
-      brand,
-      manufacturer,
-      manufacturDate,
-      expiryDate,
-      code,
-      companyEmail,
-      manufactureAddress,
-      mobile,
-      email,
-      image,
-      description,
-    },
-  } = await axios.get(medic.IPFS_URL, {});
-
-  const _medicine = {
-    medicineID: medic.id.toNumber(),
-    discount: medic.discount.toNumber(),
-    quantity: medic.quantity.toNumber(),
-    price: medic.price.toNumber(),
-    currentLocation: medic.currentLocation,
-    active: medic.active,
-    IPFS_URL: medic.IPFS_URL,
-    verifyingDoctor,
-    name,
-    brand,
-    manufacturer,
-    manufacturDate,
-    expiryDate,
-    code,
-    companyEmail,
-    manufactureAddress,
-    mobile,
-    email,
-    image,
-    description,
-  };
-
-  return _medicine;
-};
-//-----END OF MEDICINE
-
 //----PATIENTS-----------
 
 //GET ALL APPOINMENT
@@ -846,66 +723,6 @@ export const GET_PATIENT_MEDICIAL_HISTORY = async (_patientID) => {
 
 //-----END OF PATIENTS
 
-//GET PRESCRIPTION DETAILS
-export const GET_PRESCRIPTION_DETAILS = async (_prescriptionId) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const prescription = await contract.GET_PRESCRIPTION_DETAILS(
-    Number(_prescriptionId)
-  );
-
-  const prescriptionDetails = {
-    id: prescription.id.toNumber(),
-    medicineId: prescription.medicineId.toNumber(),
-    patientId: prescription.patientId.toNumber(),
-    doctorId: prescription.doctorId.toNumber(),
-    date: prescription.date.toNumber(),
-  };
-  return prescriptionDetails;
-};
-
-export const GET_ALL_PRESCRIBED_MEDICINES_OF_PATIENT = async (
-  _prescriptionId
-) => {
-  const address = await CHECKI_IF_CONNECTED();
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  if (address) {
-    const _patientID = await GET_PATIENT_ID(address);
-
-    const prescription = await contract.GET_ALL_PRESCRIBED_MEDICINES_OF_PATIENT(
-      _patientID
-    );
-
-    console.log(prescription);
-
-    const _prescriptionArray = Promise.all(
-      prescription.map(
-        async ({ id, medicineId, patientId, doctorId, date }) => {
-          const patient = await GET_PATIENT_DETAILS(Number(_patientID));
-          const medicine = await GET_MEDICINE_DETAILS(medicineId.toNumber());
-          const doctor = await GET_DOCTOR_DETAILS(doctorId.toNumber());
-
-          return {
-            prescriptionId: id.toNumber(),
-            medicineId: medicineId.toNumber(),
-            patientId: patientId.toNumber(),
-            doctorId: doctorId.toNumber(),
-            date: CONVERT_TIMESTAMP_TO_READABLE(date.toNumber()),
-            patient,
-            medicine,
-            doctor,
-          };
-        }
-      )
-    );
-
-    return _prescriptionArray;
-  }
-};
-
-//-------END OF PRESCRIPTION--------
-
 //----------CHAT-------------
 export const GET_USERNAME_TYPE = async (_userAddress) => {
   if (!_userAddress) return console.log("No Address");
@@ -1062,40 +879,3 @@ export const UPLOAD_METADATA = async (data) => {
 };
 
 //----END OF IPFS UPLOAD--------
-
-//-----------OPEN AI-------------
-
-export const ASK_AI_CHAT = async (prompt) => {
-  if (!prompt) {
-    return "Prompt Missing";
-  }
-
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: prompt }],
-    model: "gpt-4o",
-  });
-
-  if (completion?.choices[0].message) {
-    const response = {
-      prompt: prompt,
-      message: completion.choices[0].message.content,
-      timestamp: new Date().toISOString(),
-    };
-
-    let CHAT_AI_ARRAY = [];
-    const AI_ASK_HISTORY = localStorage.getItem("AI_ASK_HISTORY");
-    if (AI_ASK_HISTORY) {
-      CHAT_AI_ARRAY = JSON.parse(localStorage.getItem("AI_ASK_HISTORY"));
-      CHAT_AI_ARRAY.push(response);
-      localStorage.setItem("AI_ASK_HISTORY", JSON.stringify(CHAT_AI_ARRAY));
-    } else {
-      CHAT_AI_ARRAY.push(response);
-      localStorage.setItem("AI_ASK_HISTORY", JSON.stringify(CHAT_AI_ARRAY));
-    }
-  }
-
-  console.log(completion.choices[0]);
-  return completion.choices[0].message.content;
-};
-
-//-----------END OF OPEN AI-------------
