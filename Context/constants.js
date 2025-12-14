@@ -244,11 +244,8 @@ export const GET_ALL_APPROVE_DOCTORS = async () => {
           doctorID: id.toNumber(),
           IPFS_URL,
           accountAddress,
-          appointmentCount: appointmentCount.toNumber(),
-          successfulTreatmentCount: successfulTreatmentCount.toNumber(),
-          isApproved,
-        };
-      }
+
+        }
     )
   );
   return _doctorsArray;
@@ -317,8 +314,7 @@ export const GET_ALL_REGISTERED_DOCTORS = async () => {
           doctorID: id.toNumber(),
           IPFS_URL,
           accountAddress,
-          appointmentCount: appointmentCount.toNumber(),
-          successfulTreatmentCount: successfulTreatmentCount.toNumber(),
+
           isApproved,
         };
       }
@@ -340,8 +336,7 @@ export const GET_MOST_POPULAR_DOCTOR = async () => {
     accountAddress: doctor.accountAddress,
     id: doctor.id.toNumber(),
     specialization: doctor.specialization,
-    appointmentCount: doctor.appointmentCount.toNumber(),
-    successfulTreatmentCount: doctor.successfulTreatmentCount.toNumber(),
+
     isApproved: doctor.isApproved,
   };
 
@@ -401,8 +396,7 @@ export const GET_DOCTOR_DETAILS = async (_doctorId) => {
     IPFS_URL: doctor.IPFS_URL,
     accountAddress: doctor.accountAddress,
     doctorID: doctor.id.toNumber(),
-    appointmentCount: doctor.appointmentCount.toNumber(),
-    successfulTreatmentCount: doctor.successfulTreatmentCount.toNumber(),
+
     isApproved: doctor.isApproved,
   };
   return doctorDetails;
@@ -621,13 +615,11 @@ export const GET_FEE = async () => {
 
   const _doctorFee = await contract.registrationDoctorFee();
   const _patientFee = await contract.registrationPatientFee();
-  const _appointmentFee = await contract.appointmentFee();
   const _admin = await contract.admin();
 
   const fee = {
     doctorFee: ethers.utils.formatUnits(_doctorFee, "ether"),
     patientFee: ethers.utils.formatUnits(_patientFee, "ether"),
-    appointmentFee: ethers.utils.formatUnits(_appointmentFee, "ether"),
     admin: SHORTEN_ADDRESS(_admin),
   };
 
