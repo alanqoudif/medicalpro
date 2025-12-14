@@ -50,14 +50,7 @@ const Home = ({
           iconTwo={<HeroCard4 />}
           classStyle={"bg-success "}
         />
-        <Card
-          title={"Appointment"}
-          patient={`${allAppointments?.length}`}
-          number={".2"}
-          iconOne={<HeroCard5 />}
-          iconTwo={<HeroCard6 />}
-          classStyle={"bg-info"}
-        />
+
         <Card
           title={"Notifications"}
           patient={`${notifications?.length}`}
