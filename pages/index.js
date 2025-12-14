@@ -9,14 +9,19 @@ import {
   Home,
   Patient,
   Doctor,
+  Appointment,
+  Invoice,
   Profile,
   DoctorProfile,
   DoctorDetails,
+  StaffProfile,
+  AllAppoinments,
   PatientProfile,
   User,
   AddDoctor,
   AddPatient,
   Auth,
+  DoctorAppointment,
   MedicialHistory,
   Notifications,
   Loader,
@@ -40,6 +45,7 @@ const index = () => {
   const {
     address,
     setAddress,
+    SEND_MESSAGE,
     reCall,
     loader,
     setOpenComponent,
@@ -60,6 +66,7 @@ const index = () => {
   const [authComponent, setAuthComponent] = useState(true);
   const [doctorDetails, setDoctorDetails] = useState();
   const [patientDetails, setPatientDetails] = useState();
+  const [invoic, setInvoic] = useState();
   const [notifications, setNotifications] = useState();
   const [notificationCount, setNotificationCount] = useState();
 
@@ -189,6 +196,23 @@ const index = () => {
               setOpenComponent={setOpenComponent}
               setDoctorDetails={setDoctorDetails}
             />
+          ) : openComponent == "All Appoinments" ? (
+            <AllAppoinments
+              setDoctorDetails={setDoctorDetails}
+              setOpenComponent={setOpenComponent}
+              setPatientDetails={setPatientDetails}
+            />
+          ) : openComponent == "Appointment" ? (
+            <Appointment
+              setOpenComponent={setOpenComponent}
+              setDoctorDetails={setDoctorDetails}
+            />
+          ) : openComponent == "Invoice" ? (
+            <Invoice
+              setOpenComponent={setOpenComponent}
+              invoic={invoic}
+              currency={currency}
+            />
           ) : openComponent == "Notifications" ? (
             <Notifications
               notifications={notifications}
@@ -218,12 +242,19 @@ const index = () => {
               setOpenComponent={setOpenComponent}
               doctorDetails={doctorDetails}
             />
+          ) : openComponent == "StaffProfile" ? (
+            <StaffProfile setOpenComponent={setOpenComponent} />
           ) : openComponent == "MedicialHistory" ? (
             <MedicialHistory setOpenComponent={setOpenComponent} />
           ) : openComponent == "User" ? (
             <User setOpenComponent={setOpenComponent} />
           ) : openComponent == "UpdateAdmin" ? (
             <UpdateAdmin setOpenComponent={setOpenComponent} />
+          ) : openComponent == "YourAppointments" ? (
+            <DoctorAppointment
+              setOpenComponent={setOpenComponent}
+              setPatientDetails={setPatientDetails}
+            />
           ) : (
             ""
           )}

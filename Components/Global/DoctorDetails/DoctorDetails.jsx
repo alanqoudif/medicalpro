@@ -17,7 +17,6 @@ import { FaRegCopy, FaHospital } from "../../ReactICON/index";
 import {
   SHORTEN_ADDRESS,
   GET_DOCTOR_APPOINTMENTS_HISTORYS,
-  GET_ALL_REGISTERED_MEDICINES,
   CHECK_DOCTOR_REGISTERATION,
 } from "../../../Context/constants";
 
@@ -32,11 +31,9 @@ const DoctorDetails = ({
     CHECKI_IF_CONNECTED_LOAD,
     address,
     BOOK_APPOINTMENT,
-    PRESCRIBE_MEDICINE,
   } = useStateContext();
   const [doctorAppoinments, setDoctorAppoinments] = useState();
 
-  const [registerMedicine, setRegisterMedicine] = useState();
   const [doctorInfo, setDoctorInfo] = useState();
 
   const notifySuccess = (msg) => toast.success(msg, { duration: 2000 });
@@ -62,19 +59,6 @@ const DoctorDetails = ({
     fetchData();
   }, [doctorDetails]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        GET_ALL_REGISTERED_MEDICINES().then((medicine) => {
-          console.log(medicine);
-          setRegisterMedicine(medicine);
-        });
-      }
-    };
-
-    fetchData();
-  }, [address]);
 
   console.log(doctorDetails);
 

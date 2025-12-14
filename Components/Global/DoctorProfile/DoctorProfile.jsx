@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import Header from "./Header";
 import Card from "./Card";
 import UpdateStatus from "./UpdateStatus";
+import DoctorNotes from "./DoctorNotes";
+import AppoinmentList from "./AppoinmentList";
 import {
   DoctorDetails1,
   DoctorDetails2,
@@ -15,7 +17,8 @@ import {
 import { FaRegCopy } from "../../ReactICON/index";
 import {
   SHORTEN_ADDRESS,
-  GET_ALL_REGISTERED_PATIENTS,
+  GET_DOCTOR_APPOINTMENTS_HISTORYS,
+  CHECK_DOCTOR_REGISTERATION,
 } from "../../../Context/constants";
 
 import { useStateContext } from "../../../Context/index";
@@ -23,16 +26,41 @@ import { useStateContext } from "../../../Context/index";
 const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
   const {
     CHECKI_IF_CONNECTED_LOAD,
+    address,
+    BOOK_APPOINTMENT,
     UPDATE_PATIENT_MEDICAL_HISTORY,
+    ADD_DOCTOR_NOTES,
   } = useStateContext();
 
-  const [patients, setPatients] = useState([]);
+  const [doctorAppoinments, setDoctorAppoinments] = useState();
   const [updateCondition, setUpdateCondition] = useState(false);
+  const [doctorInfo, setDoctorInfo] = useState();
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [notesData, setNotesData] = useState({
+    appointmentId: "",
+    existingNotes: "",
+    patientName: "",
+  });
 
   const [conditionUpdate, setConditionUpdate] = useState({
     message: "",
     patientID: "",
   });
+
+  const [doctorNotes, setDoctorNotes] = useState({
+    appointmentId: "",
+    notes: "",
+  });
+
+  // Reset doctor notes when modal opens
+  useEffect(() => {
+    if (showNotesModal && notesData.existingNotes) {
+      setDoctorNotes({
+        appointmentId: notesData.appointmentId,
+        notes: notesData.existingNotes,
+      });
+    }
+  }, [showNotesModal, notesData]);
 
   const notifySuccess = (msg) => toast.success(msg, { duration: 2000 });
 
@@ -43,12 +71,14 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const allPatients = await GET_ALL_REGISTERED_PATIENTS();
-      setPatients(allPatients);
+      if (user?.doctorID) {
+        const appointments = await GET_DOCTOR_APPOINTMENTS_HISTORYS(user.doctorID);
+        setDoctorAppoinments(appointments);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [user?.doctorID]);
 
   return (
     <div className="container-fluid">
@@ -59,6 +89,15 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
           setConditionUpdate={setConditionUpdate}
           conditionUpdate={conditionUpdate}
           handleClick={() => UPDATE_PATIENT_MEDICAL_HISTORY(conditionUpdate)}
+        />
+      )}
+      {showNotesModal && (
+        <DoctorNotes
+          setShowNotesModal={setShowNotesModal}
+          notesData={notesData}
+          doctorNotes={doctorNotes}
+          setDoctorNotes={setDoctorNotes}
+          handleClick={() => ADD_DOCTOR_NOTES(doctorNotes)}
         />
       )}
       <div className="row">
@@ -73,50 +112,23 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
                 id="DZ_W_Todo2"
                 className="widget-media dz-scroll px-4 height370"
               >
-                {patients?.length ? (
+                {doctorAppoinments?.length ? (
                   <ul className="timeline">
-                    {patients?.map((patient, index) => (
-                      <li key={index}>
-                        <div className="timeline-panel bgl-dark flex-wrap border-0 p-3 rounded">
-                          <div className="media bg-transparent me-2">
-                            <img
-                              className="rounded-circle"
-                              alt="image"
-                              width={48}
-                              src={patient?.image || "images/users/pic1.jpg"} // Default image
-                            />
-                          </div>
-                          <div className="media-body">
-                            <h5 className="mb-1 fs-18">
-                              {patient?.title} {patient?.firstName}{" "}
-                              {patient?.lastName}
-                              {!patient?.firstName && `Patient #${patient?.patientID}`}
-                            </h5>
-                            <span>ID: {patient?.patientID}</span>
-                          </div>
-
-                          <div className="mt-3 d-flex flex-wrap text-primary font-w600">
-                            <a
-                              onClick={(e) => (
-                                setConditionUpdate({
-                                  ...conditionUpdate,
-                                  patientID: patient.patientID,
-                                }),
-                                setUpdateCondition(true)
-                              )}
-                              className="btn btn-primary light btn-rounded mb-2 me-2"
-                              style={{ cursor: "pointer" }}
-                            >
-                              <DoctorDetails1 />
-                              Update Condition
-                            </a>
-                          </div>
-                        </div>
-                      </li>
+                    {doctorAppoinments?.map((item, index) => (
+                      <AppoinmentList
+                        key={index}
+                        item={item}
+                        index={index}
+                        setUpdateCondition={setUpdateCondition}
+                        setConditionUpdate={setConditionUpdate}
+                        conditionUpdate={conditionUpdate}
+                        setShowNotesModal={setShowNotesModal}
+                        setNotesData={setNotesData}
+                      />
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-center p-4">No patients registered yet.</p>
+                  <p className="text-center p-4">No appointments yet.</p>
                 )}
               </div>
               <div

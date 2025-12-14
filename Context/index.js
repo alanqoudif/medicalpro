@@ -236,6 +236,78 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  //COMPLETE APPOINMENT
+  const COMPLETE_APPOINTMENT = async (_appointmentId) => {
+    try {
+      if (!_appointmentId) return notifyError("Data missing");
+
+      setLoader(true);
+      notifySuccess("Registrations processing... ");
+
+      const address = await CHECKI_IF_CONNECTED_LOAD();
+      if (address) {
+        const contract = await HEALTH_CARE_CONTARCT();
+
+        const transaction = await contract.COMPLETE_APPOINTMENT(
+          Number(_appointmentId),
+          {
+            gasLimit: ethers.utils.hexlify(8000000),
+          }
+        );
+
+        await transaction.wait();
+
+        if (transaction.hash) {
+          setLoader(false);
+          notifySuccess("Registrations conplete");
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      setLoader(false);
+      const errorMsg = PARSED_ERROR_MSG(error);
+      notifyError(errorMsg);
+      console.log(error);
+    }
+  };
+
+  //ADD DOCTOR NOTES FOR APPOINTMENT
+  const ADD_DOCTOR_NOTES = async (notesData) => {
+    try {
+      const { appointmentId, notes } = notesData;
+      if (!appointmentId || !notes) return notifyError("Data missing");
+
+      setLoader(true);
+      notifySuccess("Adding notes...");
+
+      const address = await CHECKI_IF_CONNECTED_LOAD();
+      if (address) {
+        const contract = await HEALTH_CARE_CONTARCT();
+
+        const transaction = await contract.ADD_DOCTOR_NOTES(
+          Number(appointmentId),
+          notes,
+          {
+            gasLimit: ethers.utils.hexlify(8000000),
+          }
+        );
+
+        await transaction.wait();
+
+        if (transaction.hash) {
+          setLoader(false);
+          notifySuccess("Notes added successfully");
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      setLoader(false);
+      const errorMsg = PARSED_ERROR_MSG(error);
+      notifyError(errorMsg);
+      console.log(error);
+    }
+  };
+
   //------PATIENT-------
 
   ///ADD PATIENT
@@ -321,6 +393,105 @@ export const StateContextProvider = ({ children }) => {
       setLoader(false);
       const errorMsg = PARSED_ERROR_MSG(error);
       notifyError(errorMsg);
+      console.log(error);
+    }
+  };
+
+  ///BOOK APPOINTMENT
+  const BOOK_APPOINTMENT = async (booking, bookingDoctor) => {
+    try {
+      const { from, to, appointmentDate, condition, message } = booking;
+      console.log(from, to, appointmentDate, condition, message);
+      const { accountAddress, title, firstName, lastName, doctorID } =
+        bookingDoctor;
+
+      if (
+        !from ||
+        !to ||
+        !appointmentDate ||
+        !condition ||
+        !message ||
+        !accountAddress
+      )
+        return notifyError("Data missing");
+
+      setLoader(true);
+      notifySuccess("Registrations processing... ");
+
+      const address = await CHECKI_IF_CONNECTED_LOAD();
+      if (address) {
+        const contract = await HEALTH_CARE_CONTARCT();
+
+        const _fee = await contract.appointmentFee();
+        const _patientID = await contract.GET_PATIENT_ID(address);
+
+        const transaction = await contract.BOOK_APPOINTMENT(
+          _patientID.toNumber(),
+          Number(doctorID),
+          from,
+          to,
+          appointmentDate,
+          condition,
+          message,
+          accountAddress,
+          `${title} ${firstName} ${lastName}`,
+          {
+            value: _fee.toString(),
+            gasLimit: ethers.utils.hexlify(8000000),
+          }
+        );
+
+        await transaction.wait();
+
+        if (transaction.hash) {
+          setLoader(false);
+          notifySuccess("Registrations conplete");
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      setLoader(false);
+      const errorMsg = PARSED_ERROR_MSG(error);
+      notifyError(errorMsg);
+      console.log(error);
+    }
+  };
+
+  ///CHAT
+  const SEND_MESSAGE = async (activeChat, messageChat) => {
+    try {
+      const { name, userAddress } = activeChat;
+      const { message } = messageChat;
+
+      if (!message || !userAddress) return notifyError("Data missing");
+
+      setLoader(true);
+      notifySuccess("Registrations processing... ");
+
+      const address = await CHECKI_IF_CONNECTED_LOAD();
+      if (address) {
+        const contract = await HEALTH_CARE_CONTARCT();
+
+        const transaction = await contract._SEND_MESSAGE(
+          userAddress,
+          address,
+          message,
+          {
+            gasLimit: ethers.utils.hexlify(8000000),
+          }
+        );
+
+        await transaction.wait();
+
+        if (transaction.hash) {
+          setLoader(false);
+          notifySuccess("Registrations conplete");
+          setReCall(reCall + 1);
+        }
+      }
+    } catch (error) {
+      setLoader(false);
+      notifyError("Something went wrong");
       console.log(error);
     }
   };
@@ -442,6 +613,10 @@ export const StateContextProvider = ({ children }) => {
         APPROVE_DOCTOR_STATUS,
         ADD_PATIENTS,
         UPDATE_PATIENT_MEDICAL_HISTORY,
+        BOOK_APPOINTMENT,
+        COMPLETE_APPOINTMENT,
+        ADD_DOCTOR_NOTES,
+        SEND_MESSAGE,
         //VERIBALES
         notifySuccess,
         notifyError,
