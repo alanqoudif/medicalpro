@@ -6,8 +6,8 @@ const Footer = () => {
       <div className="copyright">
         <p>
           Copyright © Designed &amp; Developed by
-          <a href="https://www.nuqtai.com/" target="_blank">
-            @nuqta ai
+          <a href="https://www.mei.com/" target="_blank">
+            @me ai
           </a>
           2023
         </p>

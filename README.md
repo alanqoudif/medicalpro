@@ -220,7 +220,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 💬 Support (الدعم)
-For support, please email info@nuqtai.com or open an issue in the GitHub repository.
+For support, please email info@mei.com or open an issue in the GitHub repository.
 
 ## 🚀 Deployment on Netlify (النشر على Netlify)
 
@@ -365,12 +365,12 @@ For support, please email info@nuqtai.com or open an issue in the GitHub reposit
 
 ## 🏢 About Us (معلومات عنا)
 
-This project is designed and developed by **Nuqta Technical Solutions** (نقطة للحلول التقنية).
+This project is designed and developed by **me Technical Solutions** (نقطة للحلول التقنية).
 
 <div align="center">
 
-[![Website](https://img.shields.io/badge/Website-nuqtai.com-blue?style=for-the-badge&logo=google-chrome&logoColor=white)](https://nuqtai.com)
-[![Instagram](https://img.shields.io/badge/Instagram-@nuqta__om-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/nuqta_om)
+[![Website](https://img.shields.io/badge/Website-mei.com-blue?style=for-the-badge&logo=google-chrome&logoColor=white)](https://mei.com)
+[![Instagram](https://img.shields.io/badge/Instagram-@me__om-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/me_om)
 
 </div>
 

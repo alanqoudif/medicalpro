@@ -1,15 +1,8 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import OpenAI from "openai";
 import axios from "axios";
 
 import Healthcare from "./Healthcare.json";
-
-//OPEN AI
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPEN_AI_KEY,
-  dangerouslyAllowBrowser: true,
-});
 
 const HEALTH_CARE_ABI = Healthcare.abi;
 const HEALTH_CARE_ADDRESS = process.env.NEXT_PUBLIC_HEALTH_CARE;
@@ -17,10 +10,6 @@ const HEALTH_CARE_ADDRESS = process.env.NEXT_PUBLIC_HEALTH_CARE;
 //ADMIN
 const ADMIN_ADDRESS = process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
-
-//PINATE API - SECRECT KEYS
-const PINATA_AIP_KEY = process.env.NEXT_PUBLIC_PINATA_AIP_KEY;
-const PINATA_SECRECT_KEY = process.env.NEXT_PUBLIC_PINATA_SECRECT_KEY;
 
 //NETWORK
 const networks = {
@@ -148,6 +137,18 @@ export function CONVERT_TIMESTAMP_TO_READABLE(timeStamp) {
   return readableTime;
 }
 
+//HELPER to fetch IPFS data safely
+const fetchIPFSData = async (ipfsUrl) => {
+  try {
+    if (!ipfsUrl || ipfsUrl === "no-ipfs-data") return {};
+    const response = await axios.get(ipfsUrl);
+    return response.data || {};
+  } catch (error) {
+    console.log("Error fetching IPFS data", error);
+    return {};
+  }
+};
+
 //CONTRACT
 
 //---FETCHING SMART CONTRACT
@@ -197,29 +198,27 @@ export const GET_ALL_APPROVE_DOCTORS = async () => {
         isApproved,
       }) => {
         const {
-          data: {
-            title,
-            firstName,
-            lastName,
-            gender,
-            degrer,
-            yourAddress,
-            designation,
-            lastWork,
-            mobile,
-            emailID,
-            collageName,
-            collageID,
-            joiningYear,
-            endYear,
-            specialization,
-            registrationID,
-            collageAddress,
-            walletAddress,
-            image,
-            biography,
-          },
-        } = await axios.get(IPFS_URL, {});
+          title,
+          firstName,
+          lastName,
+          gender,
+          degrer,
+          yourAddress,
+          designation,
+          lastWork,
+          mobile,
+          emailID,
+          collageName,
+          collageID,
+          joiningYear,
+          endYear,
+          specialization,
+          registrationID,
+          collageAddress,
+          walletAddress,
+          image,
+          biography,
+        } = await fetchIPFSData(IPFS_URL);
 
         return {
           title,
@@ -272,29 +271,27 @@ export const GET_ALL_REGISTERED_DOCTORS = async () => {
         isApproved,
       }) => {
         const {
-          data: {
-            title,
-            firstName,
-            lastName,
-            gender,
-            degrer,
-            yourAddress,
-            designation,
-            lastWork,
-            mobile,
-            emailID,
-            collageName,
-            collageID,
-            joiningYear,
-            endYear,
-            specialization,
-            registrationID,
-            collageAddress,
-            walletAddress,
-            image,
-            biography,
-          },
-        } = await axios.get(IPFS_URL, {});
+          title,
+          firstName,
+          lastName,
+          gender,
+          degrer,
+          yourAddress,
+          designation,
+          lastWork,
+          mobile,
+          emailID,
+          collageName,
+          collageID,
+          joiningYear,
+          endYear,
+          specialization,
+          registrationID,
+          collageAddress,
+          walletAddress,
+          image,
+          biography,
+        } = await fetchIPFSData(IPFS_URL);
 
         return {
           title,
@@ -331,50 +328,6 @@ export const GET_ALL_REGISTERED_DOCTORS = async () => {
   return _doctorsArray;
 };
 
-///GET DOCTOR APPOINMENTS HISTORY
-export const GET_DOCTOR_APPOINTMENTS_HISTORYS = async (_doctorID) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const appointments = await contract.GET_DOCTOR_APPOINTMENTS_HISTORYS(
-    _doctorID
-  );
-
-  const _appointmentArray = Promise.all(
-    appointments.map(
-      async ({
-        id,
-        patientId,
-        doctorId,
-        date,
-        from,
-        to,
-        appointmentDate,
-        condition,
-        message,
-        isOpen,
-      }) => {
-        const patient = await GET_PATIENT_DETAILS(patientId);
-        return {
-          appoinmnetID: id.toNumber(),
-          patientId: patientId.toNumber(),
-          doctorId: doctorId.toNumber(),
-          date: CONVERT_TIMESTAMP_TO_READABLE(date.toNumber()),
-          isOpen: isOpen,
-          from: from,
-          to: to,
-          appointmentDate: appointmentDate,
-          condition: condition,
-          message: message,
-          patient,
-          ...patient,
-        };
-      }
-    )
-  );
-
-  return _appointmentArray;
-};
-
 //GET BEST DOCTOR
 export const GET_MOST_POPULAR_DOCTOR = async () => {
   const contract = await HEALTH_CARE_CONTARCT();
@@ -402,29 +355,27 @@ export const GET_DOCTOR_DETAILS = async (_doctorId) => {
   const doctor = await contract.GET_DOCTOR_DETAILS(Number(_doctorId));
 
   const {
-    data: {
-      title,
-      firstName,
-      lastName,
-      gender,
-      degrer,
-      yourAddress,
-      designation,
-      lastWork,
-      mobile,
-      emailID,
-      collageName,
-      collageID,
-      joiningYear,
-      endYear,
-      specialization,
-      registrationID,
-      collageAddress,
-      walletAddress,
-      image,
-      biography,
-    },
-  } = await axios.get(doctor.IPFS_URL, {});
+    title,
+    firstName,
+    lastName,
+    gender,
+    degrer,
+    yourAddress,
+    designation,
+    lastWork,
+    mobile,
+    emailID,
+    collageName,
+    collageID,
+    joiningYear,
+    endYear,
+    specialization,
+    registrationID,
+    collageAddress,
+    walletAddress,
+    image,
+    biography,
+  } = await fetchIPFSData(doctor.IPFS_URL);
 
   const doctorDetails = {
     title,
@@ -466,7 +417,7 @@ export const GET_DOCTOR_ID = async (_doctorAddress) => {
   return doctor.toNumber();
 };
 
-//CHECK DOCTOR ALREADY REGSITER
+//CHECK DOCTOR ALREADY REGISTER
 export const CHECK_DOCTOR_REGISTERATION = async (_doctorAddress) => {
   if (!_doctorAddress) return console.log("Data Missing");
 
@@ -480,149 +431,7 @@ export const CHECK_DOCTOR_REGISTERATION = async (_doctorAddress) => {
 
 //----END OF DOCTORS------
 
-//----MEDICINE------------
-
-//GET REGISTER MEDICINE
-export const GET_ALL_REGISTERED_MEDICINES = async () => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const medicines = await contract.GET_ALL_REGISTERED_MEDICINES();
-
-  const _medicinesArray = await Promise.all(
-    medicines.map(
-      async ({
-        id,
-        IPFS_URL,
-        price,
-        quantity,
-        discount,
-        currentLocation,
-        active,
-      }) => {
-        const {
-          data: {
-            verifyingDoctor,
-            name,
-            brand,
-            manufacturer,
-            manufacturDate,
-            expiryDate,
-            code,
-            companyEmail,
-            manufactureAddress,
-            mobile,
-            email,
-            image,
-            description,
-          },
-        } = await axios.get(IPFS_URL, {});
-
-        return {
-          verifyingDoctor,
-          name,
-          brand,
-          manufacturer,
-          manufacturDate,
-          expiryDate,
-          code,
-          companyEmail,
-          discount: discount.toNumber(),
-          manufactureAddress,
-          price: price.toNumber(),
-          quantity: quantity.toNumber(),
-          currentLocation,
-          mobile,
-          email,
-          image,
-          description,
-          medicineID: id.toNumber(),
-          IPFS_URL,
-          active,
-        };
-      }
-    )
-  );
-  return _medicinesArray;
-};
-
-//GET MEDICINE DETAILS
-export const GET_MEDICINE_DETAILS = async (_medicineId) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const medic = await contract.GET_MEDICINE_DETAILS(Number(_medicineId));
-
-  const {
-    data: {
-      verifyingDoctor,
-      name,
-      brand,
-      manufacturer,
-      manufacturDate,
-      expiryDate,
-      code,
-      companyEmail,
-      manufactureAddress,
-      mobile,
-      email,
-      image,
-      description,
-    },
-  } = await axios.get(medic.IPFS_URL, {});
-
-  const _medicine = {
-    medicineID: medic.id.toNumber(),
-    discount: medic.discount.toNumber(),
-    quantity: medic.quantity.toNumber(),
-    price: medic.price.toNumber(),
-    currentLocation: medic.currentLocation,
-    active: medic.active,
-    IPFS_URL: medic.IPFS_URL,
-    verifyingDoctor,
-    name,
-    brand,
-    manufacturer,
-    manufacturDate,
-    expiryDate,
-    code,
-    companyEmail,
-    manufactureAddress,
-    mobile,
-    email,
-    image,
-    description,
-  };
-
-  return _medicine;
-};
-//-----END OF MEDICINE
-
 //----PATIENTS-----------
-
-//GET ALL APPOINMENT
-export const GET_ALL_APPOINTMENTS = async () => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const appointments = await contract.GET_ALL_APPOINTMENTS();
-
-  const _appointmentArray = Promise.all(
-    appointments.map(async (appointment) => {
-      return {
-        appointmentID: appointment.id.toNumber(),
-        patientId: appointment.patientId.toNumber(),
-        doctorId: appointment.doctorId.toNumber(),
-        date: CONVERT_TIMESTAMP_TO_READABLE(appointment.date.toNumber()),
-        from: appointment.from,
-        to: appointment.to,
-        appointmentDate: appointment.appointmentDate,
-        condition: appointment.condition,
-        message: appointment.message,
-        isOpen: appointment.isOpen,
-      };
-    })
-  );
-
-  return _appointmentArray;
-};
 
 //GET REGISTER PATIENTS
 export const GET_ALL_REGISTERED_PATIENTS = async () => {
@@ -633,22 +442,20 @@ export const GET_ALL_REGISTERED_PATIENTS = async () => {
   const _patientsArray = await Promise.all(
     patients.map(async ({ id, IPFS_URL, medicalHistory, accountAddress }) => {
       const {
-        data: {
-          title,
-          firstName,
-          lastName,
-          gender,
-          yourAddress,
-          mobile,
-          emailID,
-          birth,
-          doctorAddress,
-          walletAddress,
-          image,
-          message,
-          city,
-        },
-      } = await axios.get(IPFS_URL, {});
+        title,
+        firstName,
+        lastName,
+        gender,
+        yourAddress,
+        mobile,
+        emailID,
+        birth,
+        doctorAddress,
+        walletAddress,
+        image,
+        message,
+        city,
+      } = await fetchIPFSData(IPFS_URL);
 
       return {
         title,
@@ -674,93 +481,27 @@ export const GET_ALL_REGISTERED_PATIENTS = async () => {
   return _patientsArray;
 };
 
-//GET PATIENT APPOINMENT
-export const GET_PATIENT_APPOINTMENT = async (_appointmentId) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const appointments = await contract.GET_PATIENT_APPOINTMENT(
-    Number(_appointmentId)
-  );
-
-  const _appointment = {
-    id: appointments.id.toNumber(),
-    patientId: appointments.patientId.toNumber(),
-    doctorId: appointments.doctorId.toNumber(),
-    date: appointments.date.toNumber(),
-  };
-
-  return _appointment;
-};
-
-///GET ALL PATIENT APPOINMENT HISTORY
-export const GET_PATIENT_APPOINTMENT_HISTORYS = async (_patientID) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const appointments = await contract.GET_PATIENT_APPOINTMENT_HISTORYS(
-    Number(_patientID)
-  );
-
-  console.log(appointments);
-
-  const _appointmentArray = Promise.all(
-    appointments.map(
-      async ({
-        id,
-        patientId,
-        doctorId,
-        date,
-        from,
-        to,
-        appointmentDate,
-        condition,
-        message,
-        isOpen,
-      }) => {
-        console.log(id.toNumber());
-        const doctor = await GET_DOCTOR_DETAILS(doctorId.toNumber());
-        return {
-          appointmentID: id.toNumber(),
-          patientId: patientId.toNumber(),
-          doctorId: doctorId.toNumber(),
-          date: CONVERT_TIMESTAMP_TO_READABLE(date.toNumber()),
-          from: from,
-          to: to,
-          appointmentDate: appointmentDate,
-          condition: condition,
-          message: message,
-          doctor,
-          isOpen,
-        };
-      }
-    )
-  );
-
-  return _appointmentArray;
-};
-
-//GET PRESCRIPTION DETAILS
+//GET PATIENT DETAILS
 export const GET_PATIENT_DETAILS = async (_patientId) => {
   const contract = await HEALTH_CARE_CONTARCT();
 
   const patient = await contract.GET_PATIENT_DETAILS(Number(_patientId));
 
   const {
-    data: {
-      title,
-      firstName,
-      lastName,
-      gender,
-      yourAddress,
-      mobile,
-      emailID,
-      birth,
-      doctorAddress,
-      walletAddress,
-      image,
-      message,
-      city,
-    },
-  } = await axios.get(patient.IPFS_URL, {});
+    title,
+    firstName,
+    lastName,
+    gender,
+    yourAddress,
+    mobile,
+    emailID,
+    birth,
+    doctorAddress,
+    walletAddress,
+    image,
+    message,
+    city,
+  } = await fetchIPFSData(patient.IPFS_URL);
 
   const patientDetails = {
     patientID: patient.id.toNumber(),
@@ -796,7 +537,7 @@ export const GET_PATIENT_ID = async () => {
   }
 };
 
-//CHECK PATIENT ALREADY REGSITER
+//CHECK PATIENT ALREADY REGISTER
 export const CHECK_PATIENT_REGISTERATION = async (_patientAddress) => {
   if (!_patientAddress) return console.log("Data Missing");
 
@@ -808,34 +549,7 @@ export const CHECK_PATIENT_REGISTERATION = async (_patientAddress) => {
   return patientDetail;
 };
 
-//GET_ALL_PATIENT_ORDERS
-export const GET_ALL_PATIENT_ORDERS = async (_patientID) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const orders = await contract.GET_ALL_PATIENT_ORDERS(Number(_patientID));
-
-  const _orderArray = Promise.all(
-    orders.map(async (order) => {
-      const patient = await GET_PATIENT_DETAILS(Number(_patientID));
-      const medicine = await GET_MEDICINE_DETAILS(order?.medicineId.toNumber());
-
-      return {
-        medicineId: order?.medicineId.toNumber(),
-        price: order?.price.toNumber(),
-        payAmount: order?.payAmount.toNumber(),
-        quantity: order?.quantity.toNumber(),
-        patientId: order?.patientId.toNumber(),
-        date: order?.date.toNumber(),
-        patient,
-        medicine,
-      };
-    })
-  );
-
-  return _orderArray;
-};
-
-//GET_MIDEICIAL_HISTORY
+//GET MEDICAL HISTORY
 export const GET_PATIENT_MEDICIAL_HISTORY = async (_patientID) => {
   const contract = await HEALTH_CARE_CONTARCT();
 
@@ -846,67 +560,7 @@ export const GET_PATIENT_MEDICIAL_HISTORY = async (_patientID) => {
 
 //-----END OF PATIENTS
 
-//GET PRESCRIPTION DETAILS
-export const GET_PRESCRIPTION_DETAILS = async (_prescriptionId) => {
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const prescription = await contract.GET_PRESCRIPTION_DETAILS(
-    Number(_prescriptionId)
-  );
-
-  const prescriptionDetails = {
-    id: prescription.id.toNumber(),
-    medicineId: prescription.medicineId.toNumber(),
-    patientId: prescription.patientId.toNumber(),
-    doctorId: prescription.doctorId.toNumber(),
-    date: prescription.date.toNumber(),
-  };
-  return prescriptionDetails;
-};
-
-export const GET_ALL_PRESCRIBED_MEDICINES_OF_PATIENT = async (
-  _prescriptionId
-) => {
-  const address = await CHECKI_IF_CONNECTED();
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  if (address) {
-    const _patientID = await GET_PATIENT_ID(address);
-
-    const prescription = await contract.GET_ALL_PRESCRIBED_MEDICINES_OF_PATIENT(
-      _patientID
-    );
-
-    console.log(prescription);
-
-    const _prescriptionArray = Promise.all(
-      prescription.map(
-        async ({ id, medicineId, patientId, doctorId, date }) => {
-          const patient = await GET_PATIENT_DETAILS(Number(_patientID));
-          const medicine = await GET_MEDICINE_DETAILS(medicineId.toNumber());
-          const doctor = await GET_DOCTOR_DETAILS(doctorId.toNumber());
-
-          return {
-            prescriptionId: id.toNumber(),
-            medicineId: medicineId.toNumber(),
-            patientId: patientId.toNumber(),
-            doctorId: doctorId.toNumber(),
-            date: CONVERT_TIMESTAMP_TO_READABLE(date.toNumber()),
-            patient,
-            medicine,
-            doctor,
-          };
-        }
-      )
-    );
-
-    return _prescriptionArray;
-  }
-};
-
-//-------END OF PRESCRIPTION--------
-
-//----------CHAT-------------
+//GET USERNAME TYPE
 export const GET_USERNAME_TYPE = async (_userAddress) => {
   if (!_userAddress) return console.log("No Address");
 
@@ -922,46 +576,7 @@ export const GET_USERNAME_TYPE = async (_userAddress) => {
   return _userDetail;
 };
 
-export const GET_MY_FRIEND_LIST = async (_userAddress) => {
-  if (!_userAddress) return console.log("No Address");
-
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  const user = await contract.GET_MY_FRIEND_LIST(_userAddress);
-
-  const _friendArray = await Promise.all(
-    user.map(async ({ name, pubkey }) => {
-      return {
-        name: name,
-        userAddress: pubkey,
-      };
-    })
-  );
-  console.log(_friendArray);
-  return _friendArray;
-};
-
-export const GET_READ_MESSAGE = async (_userAddress) => {
-  if (!_userAddress) return console.log("No Address");
-  const address = await CHECKI_IF_CONNECTED();
-  const contract = await HEALTH_CARE_CONTARCT();
-
-  if (address) {
-    const message = await contract.GET_READ_MESSAGE(_userAddress, address);
-
-    const _messageArray = await Promise.all(
-      message.map(async ({ msg, sender, timestamp }) => {
-        return {
-          msg: msg,
-          sender: sender,
-          timestamp: CONVERT_TIMESTAMP_TO_READABLE(timestamp),
-        };
-      })
-    );
-    return _messageArray;
-  }
-};
-
+//GET ALL APP USERS
 export const GET_ALL_APP_USER = async () => {
   const contract = await HEALTH_CARE_CONTARCT();
 
@@ -978,6 +593,7 @@ export const GET_ALL_APP_USER = async () => {
   return _userArray;
 };
 
+//GET NOTIFICATIONS
 export const GET_NOTIFICATION = async (_address) => {
   const contract = await HEALTH_CARE_CONTARCT();
 
@@ -999,6 +615,7 @@ export const GET_NOTIFICATION = async (_address) => {
   return _notificationArray;
 };
 
+//GET FEES
 export const GET_FEE = async () => {
   const contract = await HEALTH_CARE_CONTARCT();
 
@@ -1016,86 +633,3 @@ export const GET_FEE = async () => {
 
   return fee;
 };
-
-//----------END OF CHAT-------------
-
-//----IPFS UPLOAD--------
-
-//--IMAGE UPLOAD
-export const UPLOAD_IPFS_IMAGE = async (file) => {
-  if (file) {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await axios({
-      method: "post",
-      url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-      data: formData,
-      headers: {
-        pinata_api_key: PINATA_AIP_KEY,
-        pinata_secret_api_key: PINATA_SECRECT_KEY,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
-
-    return ImgHash;
-  }
-};
-
-//--METADAT UPLOAD
-export const UPLOAD_METADATA = async (data) => {
-  const response = await axios({
-    method: "POST",
-    url: "https://api.pinata.cloud/pinning/pinJSONToIPFS",
-    data: data,
-    headers: {
-      pinata_api_key: PINATA_AIP_KEY,
-      pinata_secret_api_key: PINATA_SECRECT_KEY,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const url = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
-
-  return url;
-};
-
-//----END OF IPFS UPLOAD--------
-
-//-----------OPEN AI-------------
-
-export const ASK_AI_CHAT = async (prompt) => {
-  if (!prompt) {
-    return "Prompt Missing";
-  }
-
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: prompt }],
-    model: "gpt-4o",
-  });
-
-  if (completion?.choices[0].message) {
-    const response = {
-      prompt: prompt,
-      message: completion.choices[0].message.content,
-      timestamp: new Date().toISOString(),
-    };
-
-    let CHAT_AI_ARRAY = [];
-    const AI_ASK_HISTORY = localStorage.getItem("AI_ASK_HISTORY");
-    if (AI_ASK_HISTORY) {
-      CHAT_AI_ARRAY = JSON.parse(localStorage.getItem("AI_ASK_HISTORY"));
-      CHAT_AI_ARRAY.push(response);
-      localStorage.setItem("AI_ASK_HISTORY", JSON.stringify(CHAT_AI_ARRAY));
-    } else {
-      CHAT_AI_ARRAY.push(response);
-      localStorage.setItem("AI_ASK_HISTORY", JSON.stringify(CHAT_AI_ARRAY));
-    }
-  }
-
-  console.log(completion.choices[0]);
-  return completion.choices[0].message.content;
-};
-
-//-----------END OF OPEN AI-------------

@@ -3,14 +3,9 @@ import React from "react";
 //INTERNAL IMPORT
 import {
   CgMenuGridR,
-  CgMenuHotdog,
-  FaUsers,
-  FaShoppingBag,
   FaUserAlt,
   SlCalender,
-  MdEmail,
   FaArrowRightLong,
-  BsRobot,
 } from "../../ReactICON/index";
 import Link from "./Link";
 
@@ -50,15 +45,6 @@ const SideBar = ({
                   name={"Doctor"}
                   handleClick={() => setOpenComponent("Doctor")}
                 />
-                {/* HIDDEN - Add Medicine Feature */}
-                {/* <Link
-                  name={"Add Medicine"}
-                  handleClick={() => setOpenComponent("Add Medicine")}
-                /> */}
-                <Link
-                  name={"All Appoinments"}
-                  handleClick={() => setOpenComponent("All Appoinments")}
-                />
                 <Link
                   name={"User"}
                   handleClick={() => setOpenComponent("User")}
@@ -71,27 +57,12 @@ const SideBar = ({
             </li>
           )}
 
-          {userType == "Patient" && (
-            <li>
-              <a
-                className="ai-icon"
-                aria-expanded="false"
-                onClick={() => setOpenComponent("Appointment")}
-              >
-                <i>
-                  <SlCalender />
-                </i>
-                <span className="nav-text">Appointment</span>
-              </a>
-            </li>
-          )}
-
           <li>
             <a className="has-arrow ai-icon" aria-expanded="false">
               <i>
                 <FaUserAlt />
               </i>
-              <span className="nav-text">Profile</span>
+              <span className="nav-text">Account</span>
             </a>
             <ul aria-expanded="false">
               <li>
@@ -118,80 +89,18 @@ const SideBar = ({
                   Notifications
                 </a>
               </li>
-              {/* HIDDEN - Order Feature */}
-              {/* {userType == "Patient" && (
-                <Link
-                  name={"Order"}
-                  handleClick={() => setOpenComponent("Order")}
-                />
-              )} */}
               {userType == "Patient" && (
                 <Link
-                  name={"Prescription"}
-                  handleClick={() => setOpenComponent("Prescription")}
-                />
-              )}
-              {userType == "Patient" && (
-                <Link
-                  name={"Medicial History"}
+                  name={"Medical History"}
                   handleClick={() => setOpenComponent("MedicialHistory")}
-                />
-              )}
-              {userType == "Doctor" && (
-                <Link
-                  name={"Your Appointments"}
-                  handleClick={() => setOpenComponent("YourAppointments")}
                 />
               )}
             </ul>
           </li>
-          {/* HIDDEN - Shop Feature */}
-          {/* <li>
-            <a
-              className="ai-icon"
-              aria-expanded="false"
-              onClick={() => setOpenComponent("Shop")}
-            >
-              <i>
-                <FaShoppingBag />
-              </i>
-              <span className="nav-text">Shop</span>
-            </a>
-          </li> */}
-          {/* HIDDEN - Chat Feature */}
-          {/* <li>
-            <a
-              className="ai-icon"
-              aria-expanded="false"
-              onClick={() => setOpenComponent("Chat")}
-            >
-              <i>
-                <MdEmail />
-              </i>
-              <span className="nav-text">Chat</span>
-            </a>
-          </li> */}
-          {/* HIDDEN - AI Chatbot Feature */}
-          {/* <li>
-            <a
-              className="ai-icon"
-              aria-expanded="false"
-              onClick={() => setOpenComponent("Ask AI")}
-            >
-              <i>
-                <BsRobot />
-              </i>
-              <span className="nav-text">Ask AI</span>
-            </a>
-          </li> */}
         </ul>
         <div className="plus-box">
-          <p className="fs-16 font-w500 mb-1">Check your job schedule</p>
-          <a className="text-white fs-26" href="javascript:;">
-            <i>
-              <FaArrowRightLong />
-            </i>
-          </a>
+          <p className="fs-16 font-w500 mb-1">Healthcare DApp</p>
+          <p className="fs-12 font-w200">Secure Medical Records on Blockchain</p>
         </div>
         <div className="copyright">
           <p className="fs-14 font-w200">
@@ -199,7 +108,7 @@ const SideBar = ({
             2023 All Rights Reserved
           </p>
           <p className="fs-12">
-            Made with <span className="heart" /> by @Nuqta ai
+            Made by @me ai
           </p>
         </div>
       </div>

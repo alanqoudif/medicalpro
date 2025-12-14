@@ -1,23 +1,13 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import { ethers } from "ethers";
-import Web3Modal from "web3modal";
 import toast from "react-hot-toast";
 //INTERNAL IMPORT
 import {
   HANDLE_NETWORK_SWITCH,
-  SHORTEN_ADDRESS,
   HEALTH_CARE_CONTARCT,
-  PINATA_AIP_KEY,
-  PINATA_SECRECT_KEY,
-  UPLOAD_METADATA,
   PARSED_ERROR_MSG,
-  GET_ALL_APPROVE_DOCTORS,
 } from "./constants";
 
-const DOCTOR_REGISTER_FEE = process.env.NEXT_PUBLIC_DOCTOR_REGISTER_FEE;
-const PATIENT_APOINMENT_FEE = process.env.NEXT_PUBLIC_PATIENT_APPOINMENT_FEE;
-const PATIENT_REGISTER_FEE = process.env.NEXT_PUBLIC_PATIENT_REGISTER_FEE;
-const ADMIN_ADDRESS = process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
 const CURRENCY = process.env.NEXT_PUBLIC_CURRENCY;
 
 const StateContext = createContext();
@@ -82,292 +72,6 @@ export const StateContextProvider = ({ children }) => {
     CHECKI_IF_CONNECTED_LOAD();
   }, []);
 
-  //-------MEDICINE------------
-
-  //ADD MEDICINE
-  const ADD_MEDICINE = async (medicine) => {
-    try {
-      const {
-        verifyingDoctor,
-        name,
-        brand,
-        manufacturer,
-        manufacturDate,
-        expiryDate,
-        code,
-        companyEmail,
-        discount,
-        manufactureAddress,
-        price,
-        quentity,
-        currentLocation,
-        mobile,
-        email,
-        image,
-        description,
-      } = medicine;
-      if (
-        !verifyingDoctor ||
-        !name ||
-        !brand ||
-        !manufacturer ||
-        !manufacturDate ||
-        !expiryDate ||
-        !code ||
-        !companyEmail ||
-        !discount ||
-        !manufactureAddress ||
-        !price ||
-        !quentity ||
-        !currentLocation ||
-        !mobile ||
-        !email ||
-        !image ||
-        !description
-      )
-        return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registrations processing... ");
-
-      const data = JSON.stringify({
-        verifyingDoctor: verifyingDoctor,
-        name: name,
-        brand: brand,
-        manufacturer: manufacturer,
-        manufacturDate: manufacturDate,
-        expiryDate: expiryDate,
-        code: code,
-        companyEmail: companyEmail,
-        discount: discount,
-        manufactureAddress: manufactureAddress,
-        price: price,
-        quentity: quentity,
-        currentLocation: currentLocation,
-        mobile: mobile,
-        email: email,
-        image: image,
-        description: description,
-      });
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const _IPFS_URL = await UPLOAD_METADATA(data);
-
-        const transaction = await contract.ADD_MEDICINE(
-          _IPFS_URL,
-          price,
-          quentity,
-          discount,
-          currentLocation,
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Medicine Registrations conplete");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  // UPDATE_MEDICINE_LOCATION
-  const UPDATE_MEDICINE_LOCATION = async (updateMedicine) => {
-    const { medicineID, update } = updateMedicine;
-    try {
-      if (!medicineID || !update) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Updating medicine location... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.UPDATE_MEDICINE_LOCATION(
-          Number(medicineID),
-          update,
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Location updated successfully");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  // UPDATE_MEDICINE_PRICE
-  const UPDATE_MEDICINE_PRICE = async (updateMedicine) => {
-    const { medicineID, update } = updateMedicine;
-    try {
-      if (!medicineID || !update) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Updating new price... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.UPDATE_MEDICINE_PRICE(
-          Number(medicineID),
-          Number(update),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Price updated successfully");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  // UPDATE_MEDICINE_QUANTITY
-  const UPDATE_MEDICINE_QUANTITY = async (updateMedicine) => {
-    const { medicineID, update } = updateMedicine;
-    try {
-      if (!medicineID || !update) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Updating new quantity... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.UPDATE_MEDICINE_QUANTITY(
-          Number(medicineID),
-          Number(update),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("quantity updated successfully");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  // UPDATE_MEDICINE_DISCOUNT
-  const UPDATE_MEDICINE_DISCOUNT = async (updateMedicine) => {
-    const { medicineID, update } = updateMedicine;
-    try {
-      if (!medicineID || !update) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Updating new discount... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.UPDATE_MEDICINE_DISCOUNT(
-          Number(medicineID),
-          Number(update),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("discount updated successfully");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  // UPDATE_MEDICINE_ACTIVE
-  const UPDATE_MEDICINE_ACTIVE = async (_medicineId) => {
-    try {
-      if (!_medicineId) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Updating new status... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.UPDATE_MEDICINE_ACTIVE(
-          Number(_medicineId),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Status updated successfully");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  //-------END MEDICINE-----------
-
   ///REGISTER DOCTOR
   const ADD_DOCTOR = async (doctor) => {
     try {
@@ -420,36 +124,14 @@ export const StateContextProvider = ({ children }) => {
       setLoader(true);
       notifySuccess("Registrations processing... ");
 
-      const data = JSON.stringify({
-        title: title,
-        firstName: firstName,
-        lastName: lastName,
-        gender: gender,
-        degrer: degrer,
-        yourAddress: yourAddress,
-        designation: designation,
-        lastWork: lastWork,
-        mobile: mobile,
-        emailID: emailID,
-        collageName: collageName,
-        collageID: collageID,
-        joiningYear: joiningYear,
-        endYear: endYear,
-        specialization: specialization,
-        registrationID: registrationID,
-        collageAddress: collageAddress,
-        walletAddress: walletAddress,
-        image: image,
-        biography: biography,
-      });
-
       const address = await CHECKI_IF_CONNECTED_LOAD();
       if (address) {
         const contract = await HEALTH_CARE_CONTARCT();
 
         const _fee = await contract.registrationDoctorFee();
 
-        const _IPFS_URL = await UPLOAD_METADATA(data);
+        // Pass dummy IPFS URL as we removed Pinata
+        const _IPFS_URL = "no-ipfs-data";
 
         const accountName = `${title} ${firstName} ${lastName}`;
 
@@ -462,7 +144,7 @@ export const StateContextProvider = ({ children }) => {
           _type,
           {
             value: _fee.toString(),
-            gasLimit: ethers.utils.hexlify(8000000),
+            gasLimit: ethers.utils.hexlify(800000),
           }
         );
 
@@ -517,43 +199,6 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
-  //PRESCRIBE PATIENT MEDICINE
-  const PRESCRIBE_MEDICINE = async (prescribeDoctor) => {
-    try {
-      const { medicineID, patientID } = prescribeDoctor;
-      if (!medicineID || !patientID) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registrations processing... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.PRESCRIBE_MEDICINE(
-          Number(medicineID),
-          Number(patientID),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Registrations conplete");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
   //UPDATE_PATIENT_MEDICAL_HISTORY
   const UPDATE_PATIENT_MEDICAL_HISTORY = async (conditionUpdate) => {
     try {
@@ -591,42 +236,7 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
-  //COMPLETE APPOINMENT
-  const COMPLETE_APPOINTMENT = async (_appointmentId) => {
-    try {
-      if (!_appointmentId) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registrations processing... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.COMPLETE_APPOINTMENT(
-          Number(_appointmentId),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Registrations conplete");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  //------APTIENT-------
+  //------PATIENT-------
 
   ///ADD PATIENT
   const ADD_PATIENTS = async (patient, doctor) => {
@@ -671,31 +281,14 @@ export const StateContextProvider = ({ children }) => {
       setLoader(true);
       notifySuccess("Registrations processing... ");
 
-      const data = JSON.stringify({
-        title: title,
-        firstName: firstName,
-        lastName: lastName,
-        gender: gender,
-        medicialHistory: medicialHistory,
-        yourAddress: yourAddress,
-        mobile: mobile,
-        emailID: emailID,
-        birth: birth,
-        doctorName: doctorName,
-        doctorAddress: doctorAddress,
-        walletAddress: walletAddress,
-        image: image,
-        message: message,
-        city: city,
-      });
-
       const address = await CHECKI_IF_CONNECTED_LOAD();
       if (address) {
         const contract = await HEALTH_CARE_CONTARCT();
 
         const _fee = await contract.registrationPatientFee();
 
-        const _IPFS_URL = await UPLOAD_METADATA(data);
+        // Pass dummy IPFS URL as we removed Pinata
+        const _IPFS_URL = "no-ipfs-data";
 
         const accountName = `${title} ${firstName} ${lastName}`;
 
@@ -732,160 +325,6 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
-  ///BOOK APPOINMENT
-  const BOOK_APPOINTMENT = async (booking, bookingDoctor) => {
-    try {
-      const { from, to, appointmentDate, condition, message } = booking;
-      console.log(from, to, appointmentDate, condition, message);
-      const { accountAddress, title, firstName, lastName, doctorID } =
-        bookingDoctor;
-
-      if (
-        !from ||
-        !to ||
-        !appointmentDate ||
-        !condition ||
-        !message ||
-        !accountAddress
-      )
-        return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registrations processing... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const _fee = await contract.appointmentFee();
-        const _patientID = await contract.GET_PATIENT_ID(address);
-
-        const transaction = await contract.BOOK_APPOINTMENT(
-          _patientID.toNumber(),
-          Number(doctorID),
-          from,
-          to,
-          appointmentDate,
-          condition,
-          message,
-          accountAddress,
-          `${title} ${firstName} ${lastName}`,
-          {
-            value: _fee.toString(),
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Registrations conplete");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  //BUY MEDICINE
-  const BUY_MEDICINE = async (_medicineId, _price, _quantity) => {
-    try {
-      if (!_medicineId || !_quantity) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registration processing... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const _patientID = await contract.GET_PATIENT_ID(address);
-
-        const price = _price * Number(_quantity);
-
-        const parsedAmount = ethers.utils.parseEther(price.toString());
-
-        const paymentHash = await ethereum.request({
-          method: "eth_sendTransaction",
-          params: [
-            {
-              from: address,
-              to: ADMIN_ADDRESS,
-              gas: "0x5208",
-              value: parsedAmount._hex,
-            },
-          ],
-        });
-
-        const transaction = await contract.BUY_MEDICINE(
-          _patientID.toNumber(),
-          Number(_medicineId),
-          Number(_quantity),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Registration complete");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      notifyError("Something went wrong");
-      const msg = PARSED_ERROR_MSG(error);
-      console.log(msg);
-      console.log(error);
-    }
-  };
-  ///CHAT
-  const SEND_MESSAGE = async (activeChat, messageChat) => {
-    try {
-      const { name, userAddress } = activeChat;
-      const { message } = messageChat;
-
-      if (!message || !userAddress) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registrations processing... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract._SEND_MESSAGE(
-          userAddress,
-          address,
-          message,
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Registrations conplete");
-          setReCall(reCall + 1);
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      notifyError("Something went wrong");
-      console.log(error);
-    }
-  };
-
   //-----ADMIN--------
 
   //UPADTE REGSITRATION FEE
@@ -901,41 +340,6 @@ export const StateContextProvider = ({ children }) => {
         const contract = await HEALTH_CARE_CONTARCT();
 
         const transaction = await contract.UPDATE_REGISTRATION_FEE(
-          ethers.utils.parseEther(_newFee),
-          {
-            gasLimit: ethers.utils.hexlify(8000000),
-          }
-        );
-
-        await transaction.wait();
-
-        if (transaction.hash) {
-          setLoader(false);
-          notifySuccess("Registrations conplete");
-          window.location.reload();
-        }
-      }
-    } catch (error) {
-      setLoader(false);
-      const errorMsg = PARSED_ERROR_MSG(error);
-      notifyError(errorMsg);
-      console.log(error);
-    }
-  };
-
-  //UPADTE APPOINMENT FEE
-  const UPDATE_APPOINTMENT_FEE = async (_newFee) => {
-    try {
-      if (!_newFee) return notifyError("Data missing");
-
-      setLoader(true);
-      notifySuccess("Registrations processing... ");
-
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        const contract = await HEALTH_CARE_CONTARCT();
-
-        const transaction = await contract.UPDATE_APPOINTMENT_FEE(
           ethers.utils.parseEther(_newFee),
           {
             gasLimit: ethers.utils.hexlify(8000000),
@@ -1030,28 +434,14 @@ export const StateContextProvider = ({ children }) => {
       value={{
         UPDATE_ADMIN_ADDRESS,
         UPDATE_REGISTRATION_PATIENT_FEE,
-        UPDATE_APPOINTMENT_FEE,
         UPDATE_REGISTRATION_DOCTOR_FEE,
         CHECKI_IF_CONNECTED_LOAD,
         CONNECT_WALLET,
-        //ADD MEDICINE
-        ADD_MEDICINE,
-        UPDATE_MEDICINE_ACTIVE,
-        UPDATE_MEDICINE_DISCOUNT,
-        UPDATE_MEDICINE_LOCATION,
-        UPDATE_MEDICINE_PRICE,
-        UPDATE_MEDICINE_QUANTITY,
         //ADD DOCOTR
         ADD_DOCTOR,
         APPROVE_DOCTOR_STATUS,
         ADD_PATIENTS,
-        PRESCRIBE_MEDICINE,
-
         UPDATE_PATIENT_MEDICAL_HISTORY,
-        BOOK_APPOINTMENT,
-        COMPLETE_APPOINTMENT,
-        SEND_MESSAGE,
-        BUY_MEDICINE,
         //VERIBALES
         notifySuccess,
         notifyError,

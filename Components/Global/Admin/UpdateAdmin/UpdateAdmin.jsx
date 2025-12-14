@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 //INTERNAL IMPORT
-//INTERNAM IMPORT
 import {
   HeroCard1,
   HeroCard2,
@@ -21,7 +20,7 @@ import { useStateContext } from "../../../../Context/index";
 
 import { GET_FEE } from "../../../../Context/constants";
 
-const UpdateAdmin = ({}) => {
+const UpdateAdmin = ({ }) => {
   const [activeFunction, setActiveFunction] = useState();
   const [update, setUpdate] = useState();
 
@@ -49,87 +48,6 @@ const UpdateAdmin = ({}) => {
     },
     {
       name: "Admin",
-    },
-  ];
-
-  const medicines = [
-    {
-      name: "RadiantGlow Serum",
-      image: "images/product/1.jpg",
-      price: "$325.00",
-      discount: "",
-      review: 2,
-      quentity: 5,
-      code: "0405689",
-      brand: "@nuqta ai",
-      disease: ["Fever", "Headache", "Energy"],
-      description:
-        "The Blockchain Coders brings together organizations from across web3 to create the largest community learning blockchain education. ‍",
-    },
-    {
-      name: "RadiantGlow Serum",
-      image: "images/product/2.jpg",
-      price: "$325.00",
-      discount: "",
-      review: 2,
-      quentity: 5,
-      code: "0405689",
-      brand: "@nuqta ai",
-      disease: ["Fever", "Headache", "Energy"],
-      description:
-        "The Blockchain Coders brings together organizations from across web3 to create the largest community learning blockchain education. ‍",
-    },
-    {
-      name: "RadiantGlow Serum",
-      image: "images/product/3.jpg",
-      price: "$325.00",
-      discount: "",
-      review: 2,
-      quentity: 5,
-      code: "0405689",
-      brand: "@nuqta ai",
-      disease: ["Fever", "Headache", "Energy"],
-      description:
-        "The Blockchain Coders brings together organizations from across web3 to create the largest community learning blockchain education. ‍",
-    },
-    {
-      name: "RadiantGlow Serum",
-      image: "images/product/4.jpg",
-      price: "$325.00",
-      discount: "",
-      review: 2,
-      quentity: 5,
-      code: "0405689",
-      brand: "@nuqta ai",
-      disease: ["Fever", "Headache", "Energy"],
-      description:
-        "The Blockchain Coders brings together organizations from across web3 to create the largest community learning blockchain education. ‍",
-    },
-    {
-      name: "RadiantGlow Serum",
-      image: "images/product/5.jpg",
-      price: "$325.00",
-      discount: "",
-      review: 2,
-      quentity: 5,
-      code: "0405689",
-      brand: "@nuqta ai",
-      disease: ["Fever", "Headache", "Energy"],
-      description:
-        "The Blockchain Coders brings together organizations from across web3 to create the largest community learning blockchain education. ‍",
-    },
-    {
-      name: "RadiantGlow Serum",
-      image: "images/product/1.jpg",
-      price: "$325.00",
-      discount: "",
-      review: 2,
-      quentity: 5,
-      code: "0405689",
-      brand: "@nuqta ai",
-      disease: ["Fever", "Headache", "Energy"],
-      description:
-        "The Blockchain Coders brings together organizations from across web3 to create the largest community learning blockchain education. ‍",
     },
   ];
 
@@ -216,7 +134,7 @@ const UpdateAdmin = ({}) => {
           />
           <Card
             title={"Update Admin"}
-            number={"Addres"}
+            number={"Address"}
             classStyle={"bg-secondary"}
             handleClick={() => setActiveFunction("Address")}
           />

@@ -3,13 +3,11 @@ import toast from "react-hot-toast";
 
 //INTERNAL IMPORT
 import Header from "./Header";
-import AppoinmentList from "./AppoinmentList";
 import Card from "./Card";
-import Update from "./Update";
 import UpdateStatus from "./UpdateStatus";
 import {
-  DoctorDetails2,
   DoctorDetails1,
+  DoctorDetails2,
   DoctorDetails3,
   DoctorDetails4,
   DoctorDetails5,
@@ -17,9 +15,7 @@ import {
 import { FaRegCopy } from "../../ReactICON/index";
 import {
   SHORTEN_ADDRESS,
-  GET_DOCTOR_APPOINTMENTS_HISTORYS,
-  GET_ALL_REGISTERED_MEDICINES,
-  CHECK_DOCTOR_REGISTERATION,
+  GET_ALL_REGISTERED_PATIENTS,
 } from "../../../Context/constants";
 
 import { useStateContext } from "../../../Context/index";
@@ -27,22 +23,12 @@ import { useStateContext } from "../../../Context/index";
 const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
   const {
     CHECKI_IF_CONNECTED_LOAD,
-    address,
-    BOOK_APPOINTMENT,
-    PRESCRIBE_MEDICINE,
     UPDATE_PATIENT_MEDICAL_HISTORY,
   } = useStateContext();
 
-  const [doctorAppoinments, setDoctorAppoinments] = useState();
-  const [prescribeMedicine, setPrescribeMedicine] = useState(false);
+  const [patients, setPatients] = useState([]);
   const [updateCondition, setUpdateCondition] = useState(false);
-  const [registerMedicine, setRegisterMedicine] = useState();
-  const [doctorInfo, setDoctorInfo] = useState();
 
-  const [prescribeDoctor, setPrescribeDoctor] = useState({
-    medicineID: "",
-    patientID: "",
-  });
   const [conditionUpdate, setConditionUpdate] = useState({
     message: "",
     patientID: "",
@@ -57,45 +43,16 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (user?.doctorID) {
-        GET_DOCTOR_APPOINTMENTS_HISTORYS(user.doctorID).then((appointment) => {
-          const _newArray = appointment.filter(
-            (appointment) => appointment.isOpen
-          );
-          setDoctorAppoinments(_newArray);
-        });
-      }
+      const allPatients = await GET_ALL_REGISTERED_PATIENTS();
+      setPatients(allPatients);
     };
 
     fetchData();
-  }, [user?.doctorID]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const address = await CHECKI_IF_CONNECTED_LOAD();
-      if (address) {
-        GET_ALL_REGISTERED_MEDICINES().then((medicine) => {
-          setRegisterMedicine(medicine);
-        });
-      }
-    };
-
-    fetchData();
-  }, [address]);
+  }, []);
 
   return (
     <div className="container-fluid">
       <Header setOpenComponent={setOpenComponent} />
-      {prescribeMedicine && (
-        <Update
-          prescribeDoctor={prescribeDoctor}
-          setPrescribeDoctor={setPrescribeDoctor}
-          setPrescribeMedicine={setPrescribeMedicine}
-          registerMedicine={registerMedicine}
-          handleClick={() => PRESCRIBE_MEDICINE(prescribeDoctor)}
-        />
-      )}
       {updateCondition && (
         <UpdateStatus
           setUpdateCondition={setUpdateCondition}
@@ -107,45 +64,59 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
       <div className="row">
         <div className="col-xl-3 col-lg-4 col-xxl-4">
           <div className="card">
-            {doctorAppoinments?.length ? (
-              <div className="card-header border-0 pb-0">
-                <h4 className="fs-20 font-w600 mb-0">Appointments List</h4>
-              </div>
-            ) : (
-              ""
-            )}
+            <div className="card-header border-0 pb-0">
+              <h4 className="fs-20 font-w600 mb-0">Patients List</h4>
+            </div>
 
             <div className="card-body px-0 pt-4">
               <div
                 id="DZ_W_Todo2"
                 className="widget-media dz-scroll px-4 height370"
               >
-                {doctorAppoinments?.length ? (
+                {patients?.length ? (
                   <ul className="timeline">
-                    {doctorAppoinments?.map((item, index) => (
-                      <AppoinmentList
-                        item={item}
-                        index={index}
-                        setPrescribeMedicine={setPrescribeMedicine}
-                        prescribeDoctor={prescribeDoctor}
-                        setPrescribeDoctor={setPrescribeDoctor}
-                        setUpdateCondition={setUpdateCondition}
-                        setConditionUpdate={setConditionUpdate}
-                        conditionUpdate={conditionUpdate}
-                      />
+                    {patients?.map((patient, index) => (
+                      <li key={index}>
+                        <div className="timeline-panel bgl-dark flex-wrap border-0 p-3 rounded">
+                          <div className="media bg-transparent me-2">
+                            <img
+                              className="rounded-circle"
+                              alt="image"
+                              width={48}
+                              src={patient?.image || "images/users/pic1.jpg"} // Default image
+                            />
+                          </div>
+                          <div className="media-body">
+                            <h5 className="mb-1 fs-18">
+                              {patient?.title} {patient?.firstName}{" "}
+                              {patient?.lastName}
+                              {!patient?.firstName && `Patient #${patient?.patientID}`}
+                            </h5>
+                            <span>ID: {patient?.patientID}</span>
+                          </div>
+
+                          <div className="mt-3 d-flex flex-wrap text-primary font-w600">
+                            <a
+                              onClick={(e) => (
+                                setConditionUpdate({
+                                  ...conditionUpdate,
+                                  patientID: patient.patientID,
+                                }),
+                                setUpdateCondition(true)
+                              )}
+                              className="btn btn-primary light btn-rounded mb-2 me-2"
+                              style={{ cursor: "pointer" }}
+                            >
+                              <DoctorDetails1 />
+                              Update Condition
+                            </a>
+                          </div>
+                        </div>
+                      </li>
                     ))}
                   </ul>
                 ) : (
-                  <img
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                    src="appointment.jpg"
-                    alt="Appointment"
-                  />
+                  <p className="text-center p-4">No patients registered yet.</p>
                 )}
               </div>
               <div
@@ -154,16 +125,7 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
                   padding: "1rem",
                 }}
               >
-                <Card
-                  name={user?.appointmentCount}
-                  title={"Total Appointment:"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.successfulTreatmentCount}
-                  title={"Successful Treatment:"}
-                  icon={<DoctorDetails3 />}
-                />
+
               </div>
             </div>
           </div>
@@ -176,13 +138,14 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
                   alt="image"
                   className="rounded me-sm-4 me-0"
                   width={130}
-                  src={user?.image}
+                  src={user?.image || "images/doctors/1.jpg"}
                 />
                 <div className="media-body align-items-center">
                   <div className="d-sm-flex d-block justify-content-between my-3 my-sm-0">
                     <div>
                       <h3 className="fs-22 text-black font-w600 mb-0">
                         {user?.title} {user?.firstName} {user?.lastName}
+                        {!user?.firstName && `Doctor #${user?.doctorID}`}
                       </h3>
                       <p className="mb-2 mb-sm-2">
                         {SHORTEN_ADDRESS(user?.accountAddress)}{" "}
@@ -196,89 +159,38 @@ const DoctorProfile = ({ setPatientDetails, setOpenComponent, user }) => {
                   </div>
                   <a className="btn btn-primary light btn-rounded mb-2 me-2">
                     <DoctorDetails1 />
-                    {user?.gender}
+                    {user?.gender || "N/A"}
                   </a>
                   <a className="btn btn-primary light btn-rounded mb-2">
                     <DoctorDetails2 />
-                    {user?.specialization}
-                  </a>
-                  <a className="btn btn-primary light btn-rounded mb-2">
-                    <DoctorDetails2 />
-                    {user?.degrer}
+                    {user?.specialization || "General"}
                   </a>
                 </div>
               </div>
               <div className="row">
                 <Card
-                  name={user?.yourAddress}
+                  name={user?.yourAddress || "N/A"}
                   title={"Doctor Address"}
                   icon={<DoctorDetails3 />}
                 />
                 <Card
-                  name={user?.mobile}
+                  name={user?.mobile || "N/A"}
                   title={"Phone"}
                   icon={<DoctorDetails4 />}
                 />
                 <Card
-                  name={user?.emailID}
+                  name={user?.emailID || "N/A"}
                   title={"Email"}
                   icon={<DoctorDetails5 />}
                 />
-                <Card
-                  name={user?.designation}
-                  title={"Designation"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.registrationID}
-                  title={"RegistrationID"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.lastWork}
-                  title={"Last Work"}
-                  icon={<DoctorDetails3 />}
-                />
               </div>
-              <hr />
-              <div className="row mt-5">
-                <Card
-                  name={user?.collageAddress}
-                  title={"Collage Address"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.collageName}
-                  title={"Collage Name"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.collageID}
-                  title={"Collage ID"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.degrer}
-                  title={"Degrer"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.joiningYear}
-                  title={"Joining Year"}
-                  icon={<DoctorDetails3 />}
-                />
-                <Card
-                  name={user?.endYear}
-                  title={"Ending Year"}
-                  icon={<DoctorDetails3 />}
-                />
-              </div>
+
               <div className="mt-5">
                 <h4 className="fs-20 font-w600">
                   About Dr. {user?.title} {user?.firstName} {user?.lastName}
                 </h4>
                 <div className="staff-info">
-                  <p>{user?.biography}</p>
+                  <p>{user?.biography || "No biography available."}</p>
                 </div>
               </div>
             </div>

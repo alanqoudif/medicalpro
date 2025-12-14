@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 
 //INTERNAL IMPORT
 import { GoClockFill } from "../../ReactICON/index";
-import { UPLOAD_IPFS_IMAGE } from "../../../Context/constants";
 import Input from "./../Regular/Input";
 
 import { useStateContext } from "../../../Context/index";
@@ -28,20 +27,9 @@ const AddPatient = ({ registerDoctors, setAddPatient }) => {
   });
 
   const handleImageChange = async (event) => {
-    try {
-      setLoader(true);
-      const file = event.target.files[0];
-      if (file) {
-        const imgUrl = await UPLOAD_IPFS_IMAGE(file);
-        setPatient({ ...patient, image: imgUrl });
-        setLoader(false);
-        notifySuccess("Image uploaded successfully");
-      }
-    } catch (error) {
-      console.log(error);
-      setLoader(false);
-      notifyError("Failed, check your Pinata API Keys");
-    }
+    // Disabled IPFS Upload
+    setPatient({ ...patient, image: "" });
+    notifyError("Image upload disabled (No IPFS)");
   };
 
   const handleChange = (e) => {
@@ -176,12 +164,13 @@ const AddPatient = ({ registerDoctors, setAddPatient }) => {
                   <div className="form-group">
                     <label className="col-form-label">Upload Profile</label>
                     <input
-                      size={16}
                       className="form-control"
                       id="file"
                       onChange={handleImageChange}
                       type="file"
+                      disabled={true}
                     />
+                    <small className="text-muted">Image upload disabled</small>
                   </div>
                 </div>{" "}
                 <div className="col-xl-12">

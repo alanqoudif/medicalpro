@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 
 //INTERNAL IMPORT
 import { DoctorDetails1 } from "../../SVG/index";
-import { GiMedicines } from "../../ReactICON/index";
 
 import { GET_PATIENT_DETAILS } from "../../../Context/constants";
 import { useStateContext } from "../../../Context/index";
@@ -10,9 +9,6 @@ import { useStateContext } from "../../../Context/index";
 const AppoinmentList = ({
   item,
   index,
-  setPrescribeMedicine,
-  prescribeDoctor,
-  setPrescribeDoctor,
   setUpdateCondition,
   conditionUpdate,
   setConditionUpdate,
@@ -63,19 +59,7 @@ const AppoinmentList = ({
             className="btn btn-primary light btn-rounded mb-2 me-2"
           >
             <DoctorDetails1 />
-            Update
-          </a>
-          <a
-            onClick={(e) => (
-              setPrescribeDoctor({
-                ...prescribeDoctor,
-                patientID: item.patientId,
-              }),
-              setPrescribeMedicine(true)
-            )}
-            className="btn btn-primary light btn-rounded mb-2 me-2"
-          >
-            <GiMedicines />
+            Update Condition
           </a>
           <a
             onClick={() => COMPLETE_APPOINTMENT(item?.appoinmnetID)}

@@ -1,19 +1,14 @@
 import React from "react";
 //INTERNAL IMPORT
 import { TableList4 } from "../../../SVG/index";
-import { useStateContext } from "../../../../Context/index";
 
 const TableList = ({
   tableData,
   name,
   setOpenComponent,
   setActiveFunction,
-  updateMedicine,
-  setUpdateMedicine,
-  setMedicineDetails,
   currency,
 }) => {
-  const { UPDATE_MEDICINE_ACTIVE } = useStateContext();
   return (
     <tr>
       <td>
@@ -48,7 +43,7 @@ const TableList = ({
         {tableData?.appointmentFee} {currency}
       </td>
       <td>
-        {tableData?.admin} {currency}
+        {tableData?.admin}
       </td>
     </tr>
   );

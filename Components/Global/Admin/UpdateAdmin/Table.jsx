@@ -9,9 +9,6 @@ const Table = ({
   name,
   setOpenComponent,
   setActiveFunction,
-  updateMedicine,
-  setUpdateMedicine,
-  setMedicineDetails,
   currency,
 }) => {
   return (
@@ -26,9 +23,6 @@ const Table = ({
           tableData={tableData}
           setOpenComponent={setOpenComponent}
           setActiveFunction={setActiveFunction}
-          updateMedicine={updateMedicine}
-          setUpdateMedicine={setUpdateMedicine}
-          setMedicineDetails={setMedicineDetails}
           currency={currency}
         />
       </tbody>

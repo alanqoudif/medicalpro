@@ -6,30 +6,17 @@ import {
   NavHeader,
   SideBar,
   Preloader,
-  ChatBox,
   Home,
   Patient,
   Doctor,
-  Appointment,
-  Shop,
-  Medicine,
-  Order,
-  Invoice,
   Profile,
   DoctorProfile,
   DoctorDetails,
-  StaffProfile,
-  AddMedicine,
-  AllAppoinments,
-  Chat,
-  AI,
   PatientProfile,
   User,
   AddDoctor,
   AddPatient,
   Auth,
-  Prescription,
-  DoctorAppointment,
   MedicialHistory,
   Notifications,
   Loader,
@@ -44,11 +31,7 @@ import {
   GET_USERNAME_TYPE,
   PARSED_ERROR_MSG,
   SHORTEN_ADDRESS,
-  GET_READ_MESSAGE,
-  CONVERT_TIMESTAMP_TO_READABLE,
   GET_NOTIFICATION,
-  GET_ALL_APPOINTMENTS,
-  CHECKI_IF_CONNECTED,
 } from "../Context/constants";
 
 import { useStateContext } from "../Context/index";
@@ -57,8 +40,6 @@ const index = () => {
   const {
     address,
     setAddress,
-    SEND_MESSAGE,
-    BUY_MEDICINE,
     reCall,
     loader,
     setOpenComponent,
@@ -79,20 +60,14 @@ const index = () => {
   const [authComponent, setAuthComponent] = useState(true);
   const [doctorDetails, setDoctorDetails] = useState();
   const [patientDetails, setPatientDetails] = useState();
-  const [medicineDetails, setMedicineDetails] = useState();
-  const [invoic, setInvoic] = useState();
   const [notifications, setNotifications] = useState();
   const [notificationCount, setNotificationCount] = useState();
-  const [allAppointments, setAllAppointments] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (address) {
           setAuthComponent(false);
-
-          const appointments = await GET_ALL_APPOINTMENTS();
-          setAllAppointments(appointments);
 
           GET_NOTIFICATION(address).then((notification) => {
             const reversedArray = [...notification].reverse();
@@ -131,7 +106,7 @@ const index = () => {
             setUser(doctor);
           } else {
             const patient = await CHECK_PATIENT_REGISTERATION(address);
-            console.log(patientDetails);
+
             setUser(patient);
             setOpenComponent("Profile");
             setUserType("Patient");
@@ -192,7 +167,7 @@ const index = () => {
           userType={userType}
           address={address}
         />
-        <div class="content-body">
+        <div className="content-body">
           {openComponent == "Home" ? (
             <Home
               setPatientDetails={setPatientDetails}
@@ -201,7 +176,6 @@ const index = () => {
               registeredPatient={registeredPatient}
               notifications={notifications}
               setDoctorDetails={setDoctorDetails}
-              allAppointments={allAppointments}
               accountBalance={accountBalance}
               currency={currency}
             />
@@ -214,55 +188,6 @@ const index = () => {
             <Doctor
               setOpenComponent={setOpenComponent}
               setDoctorDetails={setDoctorDetails}
-            />
-          ) : // HIDDEN - Add Medicine Feature
-          false ? ( // openComponent == "Add Medicine" ? (
-            <AddMedicine
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              registerDoctors={registerDoctors}
-            />
-          ) : openComponent == "All Appoinments" ? (
-            <AllAppoinments
-              setDoctorDetails={setDoctorDetails}
-              setOpenComponent={setOpenComponent}
-              setPatientDetails={setPatientDetails}
-            />
-          ) : openComponent == "Appointment" ? (
-            <Appointment
-              setOpenComponent={setOpenComponent}
-              setDoctorDetails={setDoctorDetails}
-            />
-          ) : // HIDDEN - Shop Feature
-          false ? ( // openComponent == "Shop" ? (
-            <Shop
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              currency={currency}
-            />
-          ) : // HIDDEN - Medicine Feature
-          false ? ( // openComponent == "Medicine" ? (
-            <Medicine
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              medicineDetails={medicineDetails}
-              BUY_MEDICINE={BUY_MEDICINE}
-              userType={userType}
-              currency={currency}
-            />
-          ) : // HIDDEN - Order Feature
-          false ? ( // openComponent == "Order" ? (
-            <Order
-              setOpenComponent={setOpenComponent}
-              setMedicineDetails={setMedicineDetails}
-              setInvoic={setInvoic}
-              currency={currency}
-            />
-          ) : openComponent == "Invoice" ? (
-            <Invoice
-              setOpenComponent={setOpenComponent}
-              invoic={invoic}
-              currency={currency}
             />
           ) : openComponent == "Notifications" ? (
             <Notifications
@@ -293,35 +218,12 @@ const index = () => {
               setOpenComponent={setOpenComponent}
               doctorDetails={doctorDetails}
             />
-          ) : openComponent == "StaffProfile" ? (
-            <StaffProfile setOpenComponent={setOpenComponent} />
-          ) : // HIDDEN - Chat Feature
-          false ? ( // openComponent == "Chat" ? (
-            <Chat
-              setOpenComponent={setOpenComponent}
-              SEND_MESSAGE={SEND_MESSAGE}
-            />
-          ) : // HIDDEN - AI Chatbot Feature
-          false ? ( // openComponent == "Ask AI" ? (
-            <AI setOpenComponent={setOpenComponent} />
           ) : openComponent == "MedicialHistory" ? (
             <MedicialHistory setOpenComponent={setOpenComponent} />
           ) : openComponent == "User" ? (
             <User setOpenComponent={setOpenComponent} />
           ) : openComponent == "UpdateAdmin" ? (
             <UpdateAdmin setOpenComponent={setOpenComponent} />
-          ) : openComponent == "YourAppointments" ? (
-            <DoctorAppointment
-              setOpenComponent={setOpenComponent}
-              setPatientDetails={setPatientDetails}
-            />
-          ) : openComponent == "Prescription" ? (
-            <Prescription
-              setOpenComponent={setOpenComponent}
-              setDoctorDetails={setDoctorDetails}
-              setPatientDetails={setPatientDetails}
-              setMedicineDetails={setMedicineDetails}
-            />
           ) : (
             ""
           )}
