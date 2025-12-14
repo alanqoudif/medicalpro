@@ -245,7 +245,8 @@ export const GET_ALL_APPROVE_DOCTORS = async () => {
           IPFS_URL,
           accountAddress,
 
-        }
+        };
+      }
     )
   );
   return _doctorsArray;
@@ -377,6 +378,32 @@ export const GET_DOCTOR_APPOINTMENTS_HISTORYS = async (_doctorID) => {
         };
       }
     )
+  );
+
+  return _appointmentArray;
+};
+
+//GET ALL APPOINTMENTS
+export const GET_ALL_APPOINTMENTS = async () => {
+  const contract = await HEALTH_CARE_CONTARCT();
+
+  const appointments = await contract.GET_ALL_APPOINTMENTS();
+
+  const _appointmentArray = Promise.all(
+    appointments.map(async (appointment) => {
+      return {
+        appointmentID: appointment.id.toNumber(),
+        patientId: appointment.patientId.toNumber(),
+        doctorId: appointment.doctorId.toNumber(),
+        date: CONVERT_TIMESTAMP_TO_READABLE(appointment.date.toNumber()),
+        from: appointment.from,
+        to: appointment.to,
+        appointmentDate: appointment.appointmentDate,
+        condition: appointment.condition,
+        message: appointment.message,
+        isOpen: appointment.isOpen,
+      };
+    })
   );
 
   return _appointmentArray;
