@@ -7,7 +7,6 @@ contract Healthcare {
         uint id;
         string IPFS_URL;  
         address accountAddress;
-        uint appointmentCount;
         uint successfulTreatmentCount;
         bool isApproved;
     }
@@ -19,41 +18,6 @@ contract Healthcare {
         address accountAddress;
     }
 
-    struct Appointment {
-        uint id;
-        uint patientId;
-        uint doctorId;
-        uint date;
-        string from;
-        string to;
-        string appointmentDate;
-        string condition;
-        string message;
-        bool isOpen;
-    }
-
-    struct User {
-        string name;
-        string userType;
-        friend[] friendList;
-    }
-
-    struct friend{
-        address pubkey;
-        string name;
-    }
-
-    struct message{
-        address sender;
-        uint256 timestamp;
-        string msg;
-    }
-
-    struct AllUserStruck{
-        string name;
-        address accountAddress;
-    }
-
     struct Notification {
         uint id;
         address userAddress;
@@ -62,27 +26,18 @@ contract Healthcare {
         string categoryType;
     }
 
-    AllUserStruck[] getAllUsers;
-
-    mapping(address => User) userList;
-    mapping(bytes32 => message[]) allMessages;
-    
     mapping(address => Notification[]) private notifications;
     mapping(uint => Doctor) public doctors;
     mapping(uint => Patient) public patients;
-    mapping(uint => Appointment) public appointments;
     mapping(address => bool) public registeredDoctors;
     mapping(address => bool) public registeredPatients;
-    mapping(uint => string) public appointmentDoctorNotes; // Doctor notes for each appointment
 
     uint public doctorCount;
     uint public patientCount;
-    uint public appointmentCount;
 
     address payable public admin;
     uint public registrationDoctorFee = 0.0025 ether;
     uint public registrationPatientFee = 0.00025 ether;
-    uint public appointmentFee = 0.0025 ether;
   
 
     //DOCTOR
@@ -94,10 +49,6 @@ contract Healthcare {
     event PATIENT_ADDED(uint id, string _IPFS_URL, string[] medicalHistory);
     event NOTIFICATiON_SENT(address indexed user, string message, uint timestamp);
    //END PATIENTS
-   
-    //APPOINTMENT
-    event APPOINTMENT_BOOKED(uint id, uint patientId, uint doctorId, uint date);
-    //END APPOINTMENT
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can perform this action");
@@ -139,13 +90,10 @@ contract Healthcare {
         require(!registeredDoctors[_address], "Doctor is already registered");
         
         doctorCount++;
-        doctors[doctorCount] = Doctor(doctorCount, _IPFS_URL, _address, 0, 0, false);
+        doctors[doctorCount] = Doctor(doctorCount, _IPFS_URL, _address, 0, false);
         registeredDoctors[_address] = true;
 
         payable(admin).transfer(msg.value);
-
-        //REGISTER
-        CREATE_ACCOUNT(_name, _address, _type);
 
          ADD_NOTIFICATION(_address, "You have successfully completed the registration, now wating for approval", "Doctor");
          ADD_NOTIFICATION(admin, "New doctor is registor, now wating for approval", "Doctor");
@@ -178,43 +126,6 @@ contract Healthcare {
             ADD_NOTIFICATION(msg.sender, "Patient medicial history is updated", "Doctor");
     }
 
-    function COMPLETE_APPOINTMENT(uint _appointmentId) public onlyDoctor {
-        require(_appointmentId <= appointmentCount, "Appointment does not exist");
-        require(appointments[_appointmentId].doctorId == GET_DOCTOR_ID(msg.sender), "Only the assigned doctor can complete the appointment");
-
-        appointments[_appointmentId].isOpen = false;
-        doctors[GET_DOCTOR_ID(msg.sender)].successfulTreatmentCount++;
-
-        ADD_NOTIFICATION(msg.sender, "You have successfully completed the appointment", "Doctor");
-
-        ADD_NOTIFICATION(patients[appointments[_appointmentId].patientId].accountAddress, "Your Appointment is successfully completed", "Doctor");
-
-        ADD_NOTIFICATION(admin, "Doctor completed appointment successfully", "Doctor");
-    }
-
-    // ADD DOCTOR NOTES FOR APPOINTMENT
-    function ADD_DOCTOR_NOTES(uint _appointmentId, string memory _notes) public onlyDoctor {
-        require(_appointmentId <= appointmentCount, "Appointment does not exist");
-        require(appointments[_appointmentId].doctorId == GET_DOCTOR_ID(msg.sender), "Only the assigned doctor can add notes");
-        
-        appointmentDoctorNotes[_appointmentId] = _notes;
-
-        ADD_NOTIFICATION(msg.sender, "You have successfully added notes for the appointment", "Doctor");
-        ADD_NOTIFICATION(patients[appointments[_appointmentId].patientId].accountAddress, "Your doctor has added notes to your appointment", "Doctor");
-    }
-
-    // GET DOCTOR NOTES FOR APPOINTMENT
-    function GET_DOCTOR_NOTES(uint _appointmentId) public view returns (string memory) {
-        require(_appointmentId <= appointmentCount, "Appointment does not exist");
-        require(
-            appointments[_appointmentId].patientId == GET_PATIENT_ID(msg.sender) || 
-            appointments[_appointmentId].doctorId == GET_DOCTOR_ID(msg.sender) || 
-            msg.sender == admin,
-            "Only the patient, assigned doctor, or admin can view the notes"
-        );
-        return appointmentDoctorNotes[_appointmentId];
-    }
-
     //--------------END OF DOCTOR------------------
 
     //--------------PATIENT------------------
@@ -230,48 +141,11 @@ contract Healthcare {
 
             payable(admin).transfer(msg.value);
 
-            //REGISTER
-            CREATE_ACCOUNT(_name, _accountAddress, _type);
-
-             //CHAT FRIEND
-            ADD_FRIEND(_doctorAddress, _doctorName, _accountAddress);
-
             ADD_NOTIFICATION(_accountAddress, "You have successfully completed registration", "Patient");
 
             ADD_NOTIFICATION(admin, "New Patient is registor successfully", "Patient");
 
             emit PATIENT_ADDED(patientCount, _IPFS_URL, _medicalHistory);
-    }
-
-    /// BOOK_APPOINTMENT
-    function BOOK_APPOINTMENT(uint _patientId, uint _doctorId, string memory _from,string memory _to,string memory _appointmentDate,string memory _condition, string memory _message, address _doctorAddress, string calldata _name) public payable {
-            require(_patientId <= patientCount, "Patient does not exist");
-            require(_doctorId <= doctorCount, "Doctor does not exist");
-            require(doctors[_doctorId].isApproved, "Doctor is not approved");
-            require(patients[_patientId].accountAddress == msg.sender, "Only the patient can book their appointment");
-            require(msg.value == appointmentFee, "Incorrect appointment fee");
-
-            uint adminShare = msg.value / 10;
-            uint doctorShare = msg.value - adminShare;
-
-            appointmentCount++;
-            appointments[appointmentCount] = Appointment(appointmentCount, _patientId, _doctorId, block.timestamp, _from,_to, _appointmentDate, _condition, _message, true);
-
-            doctors[_doctorId].appointmentCount++;
-            
-            payable(admin).transfer(adminShare);
-            payable(doctors[_doctorId].accountAddress).transfer(doctorShare);
-
-            //CHAT FRIEND
-            ADD_FRIEND(_doctorAddress, _name, msg.sender);
-
-            ADD_NOTIFICATION(_doctorAddress, "You have a new appointment", "Patient");
-
-            ADD_NOTIFICATION(msg.sender, "You have successfully booked an appointment", "Patient");
-
-            ADD_NOTIFICATION(admin, "New appointment booked", "Patient");
-
-            emit APPOINTMENT_BOOKED(appointmentCount, _patientId, _doctorId, block.timestamp);
     }
 
     //--------------END OF PATIENT------------------
@@ -285,12 +159,6 @@ contract Healthcare {
         registrationDoctorFee = _newFee;
 
          ADD_NOTIFICATION(admin, "You have successfully updated Registration fee", "Admin");
-    }
-
-    function UPDATE_APPOINTMENT_FEE(uint _newFee) public onlyAdmin {
-        appointmentFee = _newFee;
-
-         ADD_NOTIFICATION(admin, "You have successfully updated Appointment fee", "Admin");
     }
 
     function UPDATE_REGISTRATION_PATIENT_FEE(uint _newFee) public onlyAdmin {
@@ -329,51 +197,14 @@ contract Healthcare {
         revert("Patient not found");
     }
 
-    function GET_PATIENT_APPOINTMENT(uint _appointmentId) public view returns (Appointment memory) {
-        require(_appointmentId <= appointmentCount, "Appointment does not exist");
-        require(appointments[_appointmentId].patientId == GET_PATIENT_ID(msg.sender) || msg.sender == admin, "Only the patient or admin can view the appointment");
-        return appointments[_appointmentId];
-    }
-
     function GET_PATIENT_MEDICIAL_HISTORY(uint _patientId) public view returns (string[] memory) {
         require(_patientId <= patientCount, "Patient does not exist");
         require(patients[_patientId].accountAddress == msg.sender || msg.sender == admin, "Only the patient or admin can view the medical history");
         return patients[_patientId].medicalHistory;
     }
 
-    function GET_PATIENT_APPOINTMENT_HISTORYS(uint _patientId) public view returns (Appointment[] memory) {
-        require(_patientId <= patientCount, "Patient does not exist");
-
-        uint count = 0;
-        for (uint i = 1; i <= appointmentCount; i++) {
-            if (appointments[i].patientId == _patientId) {
-                count++;
-            }
-        }
-
-        Appointment[] memory patientAppointments = new Appointment[](count);
-        uint counter = 0;
-        for (uint i = 1; i <= appointmentCount; i++) {
-            if (appointments[i].patientId == _patientId) {
-                patientAppointments[counter] = appointments[i];
-                counter++;
-            }
-        }
-        return patientAppointments;
-   }
-
     function GET_PATIENT_DETAILS(uint _patientId) public view returns (Patient memory) {
         return patients[_patientId];
-    }
-
-    function GET_ALL_APPOINTMENTS() public view returns (Appointment[] memory) {
-        Appointment[] memory allAppointments = new Appointment[](appointmentCount);
-        uint counter = 0;
-        for (uint i = 1; i <= appointmentCount; i++) {
-            allAppointments[counter] = appointments[i];
-            counter++;
-        }
-        return allAppointments;
     }
 
     //--------------END OF GET APTIENT------------------
@@ -415,7 +246,7 @@ contract Healthcare {
         Doctor memory bestDoctor;
         uint highestScore = 0;
         for (uint i = 1; i <= doctorCount; i++) {
-            uint score = doctors[i].appointmentCount + doctors[i].successfulTreatmentCount;
+            uint score = doctors[i].successfulTreatmentCount;
             if (score > highestScore) {
                 highestScore = score;
                 bestDoctor = doctors[i];
