@@ -131,7 +131,7 @@ contract Healthcare {
     //--------------PATIENT------------------
 
     /// ADD PATIENTS
-    function ADD_PATIENTS(string memory _IPFS_URL, string[] memory _medicalHistory, address _accountAddress, string calldata _name, address _doctorAddress, string calldata _doctorName, string memory _type) public payable {
+    function ADD_PATIENTS(string memory _IPFS_URL, string[] memory _medicalHistory, address _accountAddress, string memory _type) public payable {
             require(msg.value == registrationPatientFee, "Incorrect registration fee");
             require(!registeredPatients[_accountAddress], "Patient is already registered");
 
@@ -268,128 +268,5 @@ contract Healthcare {
         revert("Doctor not found");
     }
 
-    function GET_DOCTOR_APPOINTMENTS_HISTORYS(uint _doctorId) public view returns (Appointment[] memory) {
-        require(_doctorId <= doctorCount, "Doctor does not exist");
-
-        uint count = 0;
-        for (uint i = 1; i <= appointmentCount; i++) {
-            if (appointments[i].doctorId == _doctorId) {
-                count++;
-            }
-        }
-
-        Appointment[] memory doctorAppointments = new Appointment[](count);
-        uint counter = 0;
-        for (uint i = 1; i <= appointmentCount; i++) {
-            if (appointments[i].doctorId == _doctorId) {
-                doctorAppointments[counter] = appointments[i];
-                counter++;
-            }
-        }
-        return doctorAppointments;
-    }
-
     //--------------END OF GET DOCTOR------------------
-
-
-   //-------------- CHAT------------------
-
-    //CHECK USER EXIST
-    function CHECK_USER_EXISTS(address pubkey) public view returns(bool){
-        return bytes(userList[pubkey].name).length > 0;
-    }
-
-    //CREATE ACCOUNT
-    function CREATE_ACCOUNT(string calldata name, address _address, string memory _type) internal {
-        require(CHECK_USER_EXISTS(_address) == false, "User already exists");
-        require(bytes(name).length>0, "Username cannot be empty");
-
-        userList[_address].name = name;
-        userList[_address].userType = _type;
-
-        getAllUsers.push(AllUserStruck(name, _address));
-    }
-
-    //GET USERNAME
-    function GET_USERNAME_TYPE(address pubkey) external view returns(User memory){
-        require(CHECK_USER_EXISTS(pubkey), "User is not registered");
-        return userList[pubkey];
-    }
-
-
-    function ADD_FRIEND(address friend_key, string calldata name, address _myAddress) internal {
-        
-        require(CHECK_USER_EXISTS(_myAddress), "Create an account first");
-        require(CHECK_USER_EXISTS(friend_key), "User is not registered!");
-        require(_myAddress != friend_key, "Users cannot add themselves as friends");
-
-    
-        if (!CHECK_ALREADY_FRIENDS(_myAddress, friend_key)) {
-            _ADD_FRIEND(_myAddress, friend_key, name);
-            _ADD_FRIEND(friend_key, _myAddress, userList[_myAddress].name);
-        }
-    }
-
-    //checkAlreadyFriends
-    function CHECK_ALREADY_FRIENDS(address pubkey1, address pubkey2) internal view returns (bool){
-
-        if(userList[pubkey1].friendList.length > userList[pubkey2].friendList.length){
-            address tmp = pubkey1;
-            pubkey1 = pubkey2;
-            pubkey2 = tmp;
-        }
-
-        for(uint256 i = 0; i < userList[pubkey1].friendList.length; i++){
-            
-            if(userList[pubkey1].friendList[i].pubkey == pubkey2) return true;
-        }
-        return false;
-    }
-
-    function _ADD_FRIEND(address me, address friend_key, string memory name) internal{
-        friend memory newFriend = friend(friend_key, name);
-       userList[me].friendList.push(newFriend);
-    }
-
-    //GETMY FRIEND
-    function GET_MY_FRIEND_LIST(address _address) external view returns(friend[] memory){
-        return userList[_address].friendList;
-    }
-
-    //get chat code
-    function _GET_CHAT_CODE(address pubkey1, address pubkey2) internal pure returns(bytes32){
-        if(pubkey1 < pubkey2){
-            return keccak256(abi.encodePacked(pubkey1, pubkey2));
-        } else 
-        return keccak256(abi.encodePacked(pubkey2, pubkey1));
-    }
-
-    //SEND MESSAGE
-    function _SEND_MESSAGE(address friend_key, address _myAddress, string calldata _msg) external{
-        require(CHECK_USER_EXISTS(_myAddress), "Create an account first");
-        require(CHECK_USER_EXISTS(friend_key), "User is not registered");
-        require(CHECK_ALREADY_FRIENDS(_myAddress, friend_key), "You are not friend with the given user");
-
-        bytes32 chatCode = _GET_CHAT_CODE(_myAddress, friend_key);
-        message memory newMsg = message(_myAddress, block.timestamp, _msg);
-        allMessages[chatCode].push(newMsg);
-
-        ADD_NOTIFICATION(_myAddress, "You have successfully send message", "Message");
-
-        ADD_NOTIFICATION(friend_key, "You have new message", "Message");
-
-        ADD_NOTIFICATION(admin, "message send successfully", "Message");
-    }
-
-    //READ MESSAGE
-    function GET_READ_MESSAGE(address friend_key, address _myAddress) external view returns(message[] memory){
-        bytes32 chatCode = _GET_CHAT_CODE(_myAddress, friend_key);
-        return allMessages[chatCode];
-    }
-
-    function GET_ALL_APP_USER() public view returns(AllUserStruck[] memory){
-        return getAllUsers;
-    }
-
-     //--------------END OF CHAT------------------
 }

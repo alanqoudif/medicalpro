@@ -311,11 +311,8 @@ export const StateContextProvider = ({ children }) => {
   //------PATIENT-------
 
   ///ADD PATIENT
-  const ADD_PATIENTS = async (patient, doctor) => {
+  const ADD_PATIENTS = async (patient) => {
     try {
-      const doctorAddress = doctor?.accountAddress;
-      const doctorName = `${doctor?.title} ${doctor?.firstName} ${doctor?.lastName}`;
-
       const {
         title,
         firstName,
@@ -344,9 +341,7 @@ export const StateContextProvider = ({ children }) => {
         !walletAddress ||
         !image ||
         !message ||
-        !city ||
-        !doctorName ||
-        !doctorAddress
+        !city
       )
         return notifyError("Data missing");
 
@@ -362,17 +357,12 @@ export const StateContextProvider = ({ children }) => {
         // Pass dummy IPFS URL as we removed Pinata
         const _IPFS_URL = "no-ipfs-data";
 
-        const accountName = `${title} ${firstName} ${lastName}`;
-
         const _type = "Patient";
 
         const transaction = await contract.ADD_PATIENTS(
           _IPFS_URL,
           [medicialHistory],
           walletAddress,
-          accountName,
-          doctorAddress,
-          doctorName,
           _type,
           {
             value: _fee.toString(),
