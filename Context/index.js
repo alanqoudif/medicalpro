@@ -370,7 +370,6 @@ export const StateContextProvider = ({ children }) => {
           _IPFS_URL,
           [medicialHistory],
           walletAddress,
-          [0],
           accountName,
           doctorAddress,
           doctorName,

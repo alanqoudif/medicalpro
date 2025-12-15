@@ -7,7 +7,6 @@ import {
   GET_PATIENT_ID,
   GET_PATIENT_MEDICIAL_HISTORY,
   GET_PATIENT_APPOINTMENT_HISTORYS,
-  GET_MEDICINE_DETAILS,
 } from "../../../Context/constants";
 import { useStateContext } from "../../../Context/index";
 

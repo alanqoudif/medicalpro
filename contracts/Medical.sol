@@ -2,16 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract Healthcare {
-
-    struct Medicine {
-        uint id;
-        string IPFS_URL;
-        uint price;
-        uint quantity;
-        uint discount;
-        string currentLocation;
-        bool active;
-    }
     
     struct Doctor {
         uint id;
@@ -27,17 +17,7 @@ contract Healthcare {
         string IPFS_URL; 
         string[] medicalHistory; 
         address accountAddress;
-        uint[] boughtMedicines;
     }
-
-    struct Prescription {
-        uint id;
-        uint medicineId;
-        uint patientId;
-        uint doctorId;
-        uint date;
-    }
-    
 
     struct Appointment {
         uint id;
@@ -74,15 +54,6 @@ contract Healthcare {
         address accountAddress;
     }
 
-    struct Order {
-        uint medicineId;
-        uint price;
-        uint payAmount;
-        uint quantity;
-        uint patientId;
-        uint date;
-    }
-
     struct Notification {
         uint id;
         address userAddress;
@@ -97,20 +68,15 @@ contract Healthcare {
     mapping(bytes32 => message[]) allMessages;
     
     mapping(address => Notification[]) private notifications;
-    mapping(uint => Order[]) public patientOrders;
-    mapping(uint => Medicine) public medicines;
     mapping(uint => Doctor) public doctors;
     mapping(uint => Patient) public patients;
-    mapping(uint => Prescription) public prescriptions;
     mapping(uint => Appointment) public appointments;
     mapping(address => bool) public registeredDoctors;
     mapping(address => bool) public registeredPatients;
     mapping(uint => string) public appointmentDoctorNotes; // Doctor notes for each appointment
 
-    uint public medicineCount;
     uint public doctorCount;
     uint public patientCount;
-    uint public prescriptionCount;
     uint public appointmentCount;
 
     address payable public admin;
@@ -118,16 +84,6 @@ contract Healthcare {
     uint public registrationPatientFee = 0.00025 ether;
     uint public appointmentFee = 0.0025 ether;
   
-
-   //MEDICATION
-    event MEDICINE_ADDED(uint id, string url, string location);
-    event MEDICINE_LOCATION(uint id, string newLocation);
-    event MEDICINE_PRICE(uint id, uint price);
-    event MEDICINE_DISCOUNT(uint id, uint discount);
-    event MEDICINE_QUANTITY(uint id, uint quantity);
-    event MEDICINE_ACTIVE(uint id, bool active);    
-    event MEDICINE_BOUGHT(uint patientId, uint medicineId);
-    //END MEDICATION
 
     //DOCTOR
      event DOCTOR_REGISTERED(uint id, string IPFS_URL, address accountAddress);
@@ -139,10 +95,9 @@ contract Healthcare {
     event NOTIFICATiON_SENT(address indexed user, string message, uint timestamp);
    //END PATIENTS
    
-    //PRESCRIBED
-    event MEDICINE_PRESCRIBED(uint id, uint medicineId, uint patientId, uint doctorId, uint date);
+    //APPOINTMENT
     event APPOINTMENT_BOOKED(uint id, uint patientId, uint doctorId, uint date);
-    //END PRESCRIBED
+    //END APPOINTMENT
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can perform this action");
@@ -175,70 +130,6 @@ contract Healthcare {
     function GET_NOTIFICATIONS(address _userAddress) external view returns (Notification[] memory) {
         return notifications[_userAddress];
     }
-
-    //--------------MEDICINE------------------
-
-    ///ADD MEDICATION
-    function ADD_MEDICINE( string memory _IPFS_URL,  uint _price, uint _quantity,uint _discount, string memory _currentLocation) public onlyAdmin {
-        medicineCount++;
-        medicines[medicineCount] = Medicine(medicineCount, _IPFS_URL, _price, _quantity, _discount, _currentLocation, true);
-
-        ADD_NOTIFICATION(msg.sender, "New Medicine added to marketplace successfully!", "Medicine");
-
-        emit MEDICINE_ADDED(medicineCount, _IPFS_URL, _currentLocation);
-    }
-
-    //UPDATE MEDICATION LOCATION
-    function UPDATE_MEDICINE_LOCATION(uint _medicineId, string memory _newLocation) public onlyAdmin {
-        require(_medicineId <= medicineCount, "Medicine does not exist");
-        medicines[_medicineId].currentLocation = _newLocation;
-
-        ADD_NOTIFICATION(msg.sender, "Medicine location updated successfully", "Medicine");
-
-        emit MEDICINE_LOCATION(_medicineId, _newLocation);
-    }
-
-    //UPDATE MEDICATION PRICE
-    function UPDATE_MEDICINE_PRICE(uint _medicineId, uint _price) public onlyAdmin {
-        require(_medicineId <= medicineCount, "Medicine does not exist");
-        medicines[_medicineId].price = _price;
-
-         ADD_NOTIFICATION(msg.sender, "Medicine price updated successfully", "Medicine");
-
-        emit MEDICINE_PRICE(_medicineId, _price);
-    }
-
-    //UPDATE MEDICATION QUENTITY
-    function UPDATE_MEDICINE_QUANTITY(uint _medicineId, uint _quantity) public onlyAdmin {
-        require(_medicineId <= medicineCount, "Medicine does not exist");
-        medicines[_medicineId].quantity = _quantity;
-
-         ADD_NOTIFICATION(msg.sender, "Medicine quantity updated successfully", "Medicine");
-
-        emit MEDICINE_QUANTITY(_medicineId, _quantity);
-    }
-
-    //UPDATE MEDICATION DISCOUNT
-    function UPDATE_MEDICINE_DISCOUNT(uint _medicineId, uint _discount) public onlyAdmin {
-        require(_medicineId <= medicineCount, "Medicine does not exist");
-        medicines[_medicineId].discount = _discount;
-
-         ADD_NOTIFICATION(msg.sender, "Medicine discount updated successfully", "Medicine");
-
-        emit MEDICINE_DISCOUNT(_medicineId, _discount);
-    }
-
-    //UPDATE MEDICATION ACTIVE
-   function UPDATE_MEDICINE_ACTIVE(uint _medicineId) public onlyAdmin {
-        require(_medicineId <= medicineCount, "Medicine does not exist");
-        medicines[_medicineId].active = !medicines[_medicineId].active;
-
-         ADD_NOTIFICATION(msg.sender, "Medicine status updated successfully", "Medicine");
-
-        emit MEDICINE_ACTIVE(_medicineId, medicines[_medicineId].active);
-   }
-
-    //--------------END OF MEDICINE------------------
 
     //--------------DOCTOR------------------
 
@@ -301,20 +192,6 @@ contract Healthcare {
         ADD_NOTIFICATION(admin, "Doctor completed appointment successfully", "Doctor");
     }
 
-    function PRESCRIBE_MEDICINE(uint _medicineId, uint _patientId) public onlyDoctor {
-        require(doctors[GET_DOCTOR_ID(msg.sender)].isApproved, "Doctor is not approved");
-
-        prescriptionCount++;
-        prescriptions[prescriptionCount] = Prescription(prescriptionCount, _medicineId, _patientId, GET_DOCTOR_ID(msg.sender), block.timestamp);
-        emit MEDICINE_PRESCRIBED(prescriptionCount, _medicineId, _patientId, GET_DOCTOR_ID(msg.sender), block.timestamp);
-
-        ADD_NOTIFICATION(msg.sender, "You have successfully prescribed medicine", "Doctor");
-
-        ADD_NOTIFICATION(patients[_patientId].accountAddress, "Doctor prescribed you medicine", "Doctor");
-
-        ADD_NOTIFICATION(admin, "Doctor prescribed medicine successfully", "Doctor");
-    }
-
     // ADD DOCTOR NOTES FOR APPOINTMENT
     function ADD_DOCTOR_NOTES(uint _appointmentId, string memory _notes) public onlyDoctor {
         require(_appointmentId <= appointmentCount, "Appointment does not exist");
@@ -343,12 +220,12 @@ contract Healthcare {
     //--------------PATIENT------------------
 
     /// ADD PATIENTS
-    function ADD_PATIENTS(string memory _IPFS_URL, string[] memory _medicalHistory, address _accountAddress, uint[] memory _boughtMedicines, string calldata _name, address _doctorAddress, string calldata _doctorName, string memory _type) public payable {
+    function ADD_PATIENTS(string memory _IPFS_URL, string[] memory _medicalHistory, address _accountAddress, string calldata _name, address _doctorAddress, string calldata _doctorName, string memory _type) public payable {
             require(msg.value == registrationPatientFee, "Incorrect registration fee");
             require(!registeredPatients[_accountAddress], "Patient is already registered");
 
             patientCount++;
-            patients[patientCount] = Patient(patientCount, _IPFS_URL, _medicalHistory, _accountAddress, _boughtMedicines);
+            patients[patientCount] = Patient(patientCount, _IPFS_URL, _medicalHistory, _accountAddress);
             registeredPatients[_accountAddress] = true;
 
             payable(admin).transfer(msg.value);
@@ -397,35 +274,6 @@ contract Healthcare {
             emit APPOINTMENT_BOOKED(appointmentCount, _patientId, _doctorId, block.timestamp);
     }
 
-    function BUY_MEDICINE(uint _patientId, uint _medicineId, uint _quantity) public payable {
-        require(_patientId <= patientCount, "Patient does not exist");
-        require(_medicineId <= medicineCount, "Medicine does not exist");
-        require(patients[_patientId].accountAddress == msg.sender, "Only the patient can buy their medicine");
-        require(medicines[_medicineId].active, "Medicine is not active");
-        require(medicines[_medicineId].quantity >= _quantity, "Not enough medicine in stock");
-
-        uint totalPrice = medicines[_medicineId].price * _quantity;
-
-        medicines[_medicineId].quantity -= _quantity;
-
-        patients[_patientId].boughtMedicines.push(_medicineId);
-
-        patientOrders[_patientId].push(Order({
-            medicineId: _medicineId,
-            price: medicines[_medicineId].price,
-            payAmount: totalPrice,
-            quantity: _quantity,
-            patientId: _patientId,
-            date: block.timestamp
-        }));
-
-         ADD_NOTIFICATION(msg.sender, "You have successfully bought medicine", "Patient");
-
-        ADD_NOTIFICATION(admin, "Transaction completed, madicine bought successfully", "Patient");
-
-        emit MEDICINE_BOUGHT(_patientId, _medicineId);
-    }
-
     //--------------END OF PATIENT------------------
 
 
@@ -461,47 +309,6 @@ contract Healthcare {
 
     
     //--------------GET APTIENT------------------
-
-    function GET_ALL_PATIENT_ORDERS(uint patientId) public view returns (Order[] memory) {
-        require(patientId <= patientCount, "Patient does not exist");
-        return patientOrders[patientId];
-    }
-
-    //GET PRESCRIPTION DETAILS
-    function GET_PRESCRIPTION_DETAILS(uint _prescriptionId) public view returns (Prescription memory) {
-        return prescriptions[_prescriptionId];
-    }
-
-    // GET_ALL_PRESCRIBED_MEDICINES
-    
-    function GET_ALL_PRESCRIBED_MEDICINES() public view returns (Prescription[] memory) {
-        Prescription[] memory allPrescriptions = new Prescription[](prescriptionCount);
-        uint counter = 0;
-        for (uint i = 1; i <= prescriptionCount; i++) {
-            allPrescriptions[counter] = prescriptions[i];
-            counter++;
-        }
-        return allPrescriptions;
-    }
-
-    function GET_ALL_PRESCRIBED_MEDICINES_OF_PATIENT(uint patientId) public view returns (Prescription[] memory) {
-        uint count = 0;
-        for (uint i = 1; i <= prescriptionCount; i++) {
-            if (prescriptions[i].patientId == patientId) {
-                count++;
-            }
-        }
-
-        Prescription[] memory patientPrescriptions = new Prescription[](count);
-        uint counter = 0;
-        for (uint i = 1; i <= prescriptionCount; i++) {
-            if (prescriptions[i].patientId == patientId) {
-                patientPrescriptions[counter] = prescriptions[i];
-                counter++;
-            }
-        }
-        return patientPrescriptions;
-    }
 
     function GET_ALL_REGISTERED_PATIENTS() public view returns (Patient[] memory) {
         Patient[] memory allPatients = new Patient[](patientCount);
@@ -557,11 +364,6 @@ contract Healthcare {
 
     function GET_PATIENT_DETAILS(uint _patientId) public view returns (Patient memory) {
         return patients[_patientId];
-    }
-
-    function GET_BOUGHT_MEDICINE_BY_PAITENT(uint _patientId) public view returns (uint[] memory) {
-        require(_patientId <= patientCount, "Patient does not exist");
-        return patients[_patientId].boughtMedicines;
     }
 
     function GET_ALL_APPOINTMENTS() public view returns (Appointment[] memory) {
@@ -657,26 +459,6 @@ contract Healthcare {
     }
 
     //--------------END OF GET DOCTOR------------------
-
-
-    //-------------- GET MEDICINE------------------
-
-    //GET FUNCTION FOR MEDICATION
-    function GET_ALL_REGISTERED_MEDICINES() public view returns (Medicine[] memory) {
-        Medicine[] memory allMedicine = new Medicine[](medicineCount);
-        uint counter = 0;
-        for (uint i = 1; i <= medicineCount; i++) {
-            allMedicine[counter] = medicines[i];
-            counter++;
-        }
-        return allMedicine;
-    }
-
-    function GET_MEDICINE_DETAILS(uint _medicineId) public view returns (Medicine memory) {
-        return medicines[_medicineId];
-    }
-   
-   //--------------END OF GET MEDICINE------------------
 
 
    //-------------- CHAT------------------
